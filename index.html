@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Agents LLM Wiki — 結構化知識庫瀏覽器</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --sidebar: #111c35;
+      --card: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --primary: #38bdf8;
+      --accent: #c084fc;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      min-height: 100vh;
+      line-height: 1.7;
+    }
+    aside {
+      background: var(--sidebar);
+      border-right: 1px solid var(--border);
+      padding: 18px 14px;
+      overflow-y: auto;
+      max-height: 100vh;
+      position: sticky;
+      top: 0;
+    }
+    .brand {
+      font-weight: 800;
+      font-size: 1.1rem;
+      margin-bottom: 4px;
+      color: var(--primary);
+    }
+    .sub {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+    input.search {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      margin-bottom: 14px;
+    }
+    .cat-header {
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin: 12px 6px 6px;
+      font-weight: 700;
+    }
+    .nav-btn {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 7px 10px;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text);
+      font-size: 0.85rem;
+      cursor: pointer;
+      margin-bottom: 2px;
+    }
+    .nav-btn:hover, .nav-btn.active {
+      background: rgba(56, 189, 248, 0.14);
+      border-color: var(--border);
+      color: var(--primary);
+    }
+    main {
+      padding: 32px 44px;
+      max-width: 960px;
+    }
+    .wiki-page {
+      display: none;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 28px 34px;
+    }
+    .wiki-page.active {
+      display: block;
+    }
+    a.wikilink {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+      background: rgba(56, 189, 248, 0.12);
+      padding: 1px 6px;
+      border-radius: 5px;
+    }
+    a.src-badge {
+      color: var(--accent);
+      text-decoration: none;
+      font-family: ui-monospace, monospace;
+      font-size: 0.82rem;
+      background: rgba(192, 132, 252, 0.14);
+      padding: 1px 6px;
+      border-radius: 5px;
+    }
+    span.anchor-tag {
+      font-family: ui-monospace, monospace;
+      font-size: 0.75rem;
+      color: var(--muted);
+      background: rgba(148, 163, 184, 0.14);
+      padding: 1px 6px;
+      border-radius: 4px;
+      margin-left: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.9rem;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      text-align: left;
+    }
+    th {
+      background: var(--sidebar);
+    }
+    pre {
+      background: var(--bg);
+      padding: 12px 14px;
+      border-radius: 8px;
+      overflow-x: auto;
+      border: 1px solid var(--border);
+    }
+    code {
+      font-family: ui-monospace, monospace;
+      font-size: 0.88em;
+    }
+  </style>
+</head>
+<body>
+  <aside>
+    <div class="brand">AI Agents LLM Wiki</div>
+    <div class="sub">Karpathy LLM Wiki 模式 · 22 頁結構化知識庫</div>
+    <a href="deck/" class="nav-btn" style="background: rgba(192, 132, 252, 0.18); color: var(--accent); font-weight: 700; text-align: center; text-decoration: none; margin-bottom: 12px; border: 1px solid rgba(192, 132, 252, 0.4); padding: 8px;">🖥️ 投影 15 頁教學簡報 &rarr;</a>
+    <input class="search" id="searchInput" type="search" placeholder="搜尋概念、來源或錨點..." />
+    <div class="cat-header">總覽與紀錄</div>
+    <button class="nav-btn" data-page="index">Wiki 目錄 (index.md)</button><button class="nav-btn" data-page="overview">主題總覽 (overview.md)</button><button class="nav-btn" data-page="00-scope">先討論後生成紀錄 (00-scope.md)</button><button class="nav-btn" data-page="log">操作時間軸 (log.md)</button>
+    <div class="cat-header">核心概念頁 (Concepts)</div>
+    <button class="nav-btn" data-page="ai-agent">AI Agent（人工智慧代理）：定義、大腦與身體架構</button><button class="nav-btn" data-page="augmented-llm">Augmented LLM（擴充型語言模型）：所有代理系統的共同積木</button><button class="nav-btn" data-page="guardrails">Guardrails &amp; Human-in-the-Loop：代理系統的多層次安全護欄</button><button class="nav-btn" data-page="mcp">MCP（Model Context Protocol）：AI 應用的 USB-C 工具標準介面</button><button class="nav-btn" data-page="memory">Memory（記憶系統）：短期上下文與長期外部知識庫</button><button class="nav-btn" data-page="multi-agent">Multi-Agent Systems（多代理系統）：單一代理優先與兩大協作拓樸</button><button class="nav-btn" data-page="planning">Planning（規劃）：任務拆解與自我反思</button><button class="nav-btn" data-page="react">ReAct（Reasoning + Acting）：邊想邊做的代理核心迴圈</button><button class="nav-btn" data-page="tool-use">Tool Use（工具使用）：賦予語言模型雙手與感官</button><button class="nav-btn" data-page="when-to-use-agents">When to Use Agents：何時該用（與不該用）AI Agent 的工程決策準則</button><button class="nav-btn" data-page="workflow-patterns">5 種常見 Workflow 設計模式（Anthropic Composable Patterns）</button><button class="nav-btn" data-page="workflow-vs-agent">Workflow vs Agent：確定性工作流與自主代理的差異及自主性光譜</button>
+    <div class="cat-header">Ingested 原始文獻摘要 (Sources)</div>
+    <button class="nav-btn" data-page="src-01">[src-01] Building Effective Agents (Anthropic, 2024)</button><button class="nav-btn" data-page="src-02">[src-02] LLM Powered Autonomous Agents (Lilian Weng, 2023)</button><button class="nav-btn" data-page="src-03">[src-03] ReAct: Synergizing Reasoning and Acting in Language Models (Yao et al., 2022)</button><button class="nav-btn" data-page="src-04">[src-04] A Practical Guide to Building Agents (OpenAI, 2025)</button><button class="nav-btn" data-page="src-05">[src-05] Hugging Face Agents Course — Unit 1: What are Agents? (2025)</button><button class="nav-btn" data-page="src-06">[src-06] Model Context Protocol (MCP) — Introduction (2024)</button>
+  </aside>
+  <main>
+    <section class="wiki-page" id="page-index" data-id="index"><div style="font-size:0.8rem;color:var(--muted);font-family:monospace;">PAGE ID: index</div><h1>AI Agents LLM Wiki — 知識庫總目錄 (<code>index.md</code>)</h1>
+<blockquote>
+<p>本目錄由 LLM 維護者於每次 <code>ingest</code> 與 <code>lint</code> 時自動更新。查詢知識庫時，請先閱讀本頁定位相關概念頁與來源頁，再深入閱讀對應檔案與 <code>^p-</code> 段落錨點。</p>
+</blockquote>
+<hr />
+<h2>一、總覽與討論紀錄 (Overview &amp; Discussions)</h2>
+<table>
+<thead>
+<tr>
+<th>頁面</th>
+<th>一句話摘要</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#page-overview" class="wikilink" data-target="overview">[[overview]]</a></td>
+<td>綜合 6 篇權威文獻的全景導覽：從 Chatbot 到 Agent、三大支柱、ReAct 迴圈、Workflow 模式與安全護欄</td>
+</tr>
+<tr>
+<td><a href="#page-00-scope" class="wikilink" data-target="00-scope">[[00-scope]]</a></td>
+<td>「先討論、後生成」紀錄：目標聽眾、6 大學習目標（LO1–LO6）與 6 篇來源的 Ingest 前討論筆記</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>二、核心概念頁 (Concepts — 12 頁)</h2>
+<table>
+<thead>
+<tr>
+<th>頁面</th>
+<th>對應學習目標</th>
+<th>綜合來源</th>
+<th>一句話摘要</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#page-ai-agent" class="wikilink" data-target="ai-agent">[[ai-agent]]</a></td>
+<td>LO1</td>
+<td><code>src-01, 02, 04, 05</code></td>
+<td>AI Agent 定義、Brain（大腦）+ Body（身體）比喻、三大支柱與三基礎要素</td>
+</tr>
+<tr>
+<td><a href="#page-augmented-llm" class="wikilink" data-target="augmented-llm">[[augmented-llm]]</a></td>
+<td>LO1, LO2</td>
+<td><code>src-01, 02, 06</code></td>
+<td>在基礎 LLM 上掛載檢索（Retrieval）、工具（Tools）與記憶（Memory）的最小建構積木</td>
+</tr>
+<tr>
+<td><a href="#page-planning" class="wikilink" data-target="planning">[[planning]]</a></td>
+<td>LO2, LO3</td>
+<td><code>src-02, 03, 01</code></td>
+<td>任務拆解（CoT、ToT）與自我反思（ReAct、Reflexion）兩大規劃機制</td>
+</tr>
+<tr>
+<td><a href="#page-memory" class="wikilink" data-target="memory">[[memory]]</a></td>
+<td>LO2</td>
+<td><code>src-02, 01</code></td>
+<td>感官記憶、短期記憶（Context Window 上下文學習）與長期記憶（外部向量庫／結構化 Wiki）</td>
+</tr>
+<tr>
+<td><a href="#page-tool-use" class="wikilink" data-target="tool-use">[[tool-use]]</a></td>
+<td>LO2, LO5</td>
+<td><code>src-01, 02, 04, 05, 06</code></td>
+<td>突破靜態權重限制的感官與雙手：Data、Action、Orchestration 三類工具與 ACI 設計原則</td>
+</tr>
+<tr>
+<td><a href="#page-react" class="wikilink" data-target="react">[[react]]</a></td>
+<td>LO3</td>
+<td><code>src-03, 02, 05</code></td>
+<td><code>Thought → Action → Observation</code> 交錯推論與行動迴圈，克服純 CoT 封閉推論的幻覺</td>
+</tr>
+<tr>
+<td><a href="#page-workflow-vs-agent" class="wikilink" data-target="workflow-vs-agent">[[workflow-vs-agent]]</a></td>
+<td>LO1, LO4</td>
+<td><code>src-01, 05, 04</code></td>
+<td>確定性程式碼路徑（Workflows）vs 模型動態主導（Agents）及連續的自主性光譜（Agency Spectrum）</td>
+</tr>
+<tr>
+<td><a href="#page-workflow-patterns" class="wikilink" data-target="workflow-patterns">[[workflow-patterns]]</a></td>
+<td>LO4</td>
+<td><code>src-01</code></td>
+<td>Anthropic 5 大可組合工作流模式：Prompt Chaining、Routing、Parallelization、Orchestrator-Workers、Evaluator-Optimizer</td>
+</tr>
+<tr>
+<td><a href="#page-mcp" class="wikilink" data-target="mcp">[[mcp]]</a></td>
+<td>LO5</td>
+<td><code>src-06, 01</code></td>
+<td>Model Context Protocol：AI 應用的 USB-C 標準介面，以 Host / Client / Server 架構消除 $N \times M$ 整合碎片化</td>
+</tr>
+<tr>
+<td><a href="#page-multi-agent" class="wikilink" data-target="multi-agent">[[multi-agent]]</a></td>
+<td>LO5</td>
+<td><code>src-04, 01, 05</code></td>
+<td>單一代理優先原則，以及拆分多代理的兩大拓樸：Manager（中央調度）vs Decentralized（Handoff 交棒）</td>
+</tr>
+<tr>
+<td><a href="#page-when-to-use-agents" class="wikilink" data-target="when-to-use-agents">[[when-to-use-agents]]</a></td>
+<td>LO6</td>
+<td><code>src-01, 04</code></td>
+<td>何時該用（複雜決策、難維護規則、非結構化資料）與不該用 Agent，以及延遲與成本權衡</td>
+</tr>
+<tr>
+<td><a href="#page-guardrails" class="wikilink" data-target="guardrails">[[guardrails]]</a></td>
+<td>LO6</td>
+<td><code>src-04, 01, 02</code></td>
+<td>多層次防禦護欄（相關性／安全分類器、PII 過濾、工具低中高風險分級）與 Human-in-the-loop 人類介入</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>三、已 Ingest 原始文獻摘要頁 (Ingested Sources — 6 篇)</h2>
+<table>
+<thead>
+<tr>
+<th>頁面</th>
+<th>作者／機構</th>
+<th>年份</th>
+<th>核心貢獻</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#page-src-01" class="wikilink" data-target="src-01">[[src-01-anthropic-effective-agents]]</a> (<code>&lt;a href="#page-src-01" class="wikilink" data-target="src-01"&gt;[&lt;a href="#page-src-01" class="src-badge" data-target="src-01"&gt;[src-01]&lt;/a&gt;]&lt;/a&gt;</code>)</td>
+<td>Erik Schluntz, Barry Zhang (Anthropic)</td>
+<td>2024</td>
+<td>區分 Workflows 與 Agents、Augmented LLM 積木、5 種常見 Workflow 模式與簡單優先原則</td>
+</tr>
+<tr>
+<td><a href="#page-src-02" class="wikilink" data-target="src-02">[[src-02-lilian-weng-autonomous-agents]]</a> (<code>&lt;a href="#page-src-02" class="wikilink" data-target="src-02"&gt;[&lt;a href="#page-src-02" class="src-badge" data-target="src-02"&gt;[src-02]&lt;/a&gt;]&lt;/a&gt;</code>)</td>
+<td>Lilian Weng (OpenAI)</td>
+<td>2023</td>
+<td>提出 Agent = LLM + Planning + Memory + Tool Use 三大組件經典綜述與實務限制</td>
+</tr>
+<tr>
+<td><a href="#page-src-03" class="wikilink" data-target="src-03">[[src-03-react-synergizing-reasoning-acting]]</a> (<code>&lt;a href="#page-src-03" class="wikilink" data-target="src-03"&gt;[&lt;a href="#page-src-03" class="src-badge" data-target="src-03"&gt;[src-03]&lt;/a&gt;]&lt;/a&gt;</code>)</td>
+<td>Shunyu Yao et al. (Princeton &amp; Google)</td>
+<td>2022</td>
+<td>提出 ReAct（Thought → Action → Observation）迴圈，結合推論與外部行動克服幻覺</td>
+</tr>
+<tr>
+<td><a href="#page-src-04" class="wikilink" data-target="src-04">[[src-04-openai-practical-guide-building-agents]]</a> (<code>&lt;a href="#page-src-04" class="wikilink" data-target="src-04"&gt;[&lt;a href="#page-src-04" class="src-badge" data-target="src-04"&gt;[src-04]&lt;/a&gt;]&lt;/a&gt;</code>)</td>
+<td>OpenAI</td>
+<td>2025</td>
+<td>Agent 三要素、三大適用判準、Single vs Multi-Agent（Manager / Decentralized）與多層 Guardrails</td>
+</tr>
+<tr>
+<td><a href="#page-src-05" class="wikilink" data-target="src-05">[[src-05-hf-agents-course-what-are-agents]]</a> (<code>&lt;a href="#page-src-05" class="wikilink" data-target="src-05"&gt;[&lt;a href="#page-src-05" class="src-badge" data-target="src-05"&gt;[src-05]&lt;/a&gt;]&lt;/a&gt;</code>)</td>
+<td>Hugging Face Team</td>
+<td>2025</td>
+<td>初學者友善的 Brain + Body 比喻、感知行動迴圈與連續的自主性光譜（Spectrum of Agency）</td>
+</tr>
+<tr>
+<td><a href="#page-src-06" class="wikilink" data-target="src-06">[[src-06-model-context-protocol-intro]]</a> (<code>&lt;a href="#page-src-06" class="wikilink" data-target="src-06"&gt;[&lt;a href="#page-src-06" class="src-badge" data-target="src-06"&gt;[src-06]&lt;/a&gt;]&lt;/a&gt;</code>)</td>
+<td>Anthropic / MCP Project</td>
+<td>2024</td>
+<td>Model Context Protocol (MCP) 開放標準：AI 應用的 USB-C 介面與 Host/Client/Server 架構</td>
+</tr>
+</tbody>
+</table></section><section class="wiki-page" id="page-overview" data-id="overview"><div style="font-size:0.8rem;color:var(--muted);font-family:monospace;">PAGE ID: overview</div><h1>AI Agents 主題總覽（Synthesis &amp; Overview）</h1>
+<p>本頁綜合 <strong>AI Agents LLM Wiki</strong> 已 Ingest 的 6 篇核心文獻（<a href="#page-src-01" class="wikilink" data-target="src-01">[<a href="#page-src-01" class="src-badge" data-target="src-01">[src-01]</a>]</a>、<a href="#page-src-02" class="wikilink" data-target="src-02">[<a href="#page-src-02" class="src-badge" data-target="src-02">[src-02]</a>]</a>、<a href="#page-src-03" class="wikilink" data-target="src-03">[<a href="#page-src-03" class="src-badge" data-target="src-03">[src-03]</a>]</a>、<a href="#page-src-04" class="wikilink" data-target="src-04">[<a href="#page-src-04" class="src-badge" data-target="src-04">[src-04]</a>]</a>、<a href="#page-src-05" class="wikilink" data-target="src-05">[<a href="#page-src-05" class="src-badge" data-target="src-05">[src-05]</a>]</a>、<a href="#page-src-06" class="wikilink" data-target="src-06">[<a href="#page-src-06" class="src-badge" data-target="src-06">[src-06]</a>]</a>），提供從初學者入門到工程實務落地的全景知識地圖。<a href="#page-src-01" class="src-badge" data-target="src-01">[src-01]</a><a href="#page-src-02" class="src-badge" data-target="src-02">[src-02]</a><a href="#page-src-04" class="src-badge" data-target="src-04">[src-04]</a><a href="#page-src-05" class="src-badge" data-target="src-05">[src-05]</a> <span class="anchor-tag" id="p-ov-1">^p-ov-1</span></p>
+<h2>1. 什麼是 AI Agent？它跟一般 Chatbot 差在哪裡？</h2>
+<p>一般的大型語言模型（Chatbot）像是一位「只動口、不動手」的顧問：你問一句、它根據預訓練權重回一段文字，既不能主動查核外部事實，也無法替你執行多步驟任務；而 <strong><a href="#page-ai-agent" class="wikilink" data-target="ai-agent">[[AI Agent（人工智慧代理）]]</a></strong> 則結合了 <strong>Brain（大腦 ＝ LLM 推論與規劃）</strong> 與 <strong>Body（身體 ＝ 外部工具與行動能力）</strong>，能感知環境並獨立執行多步驟工作流以達成使用者目標。<a href="#page-src-04" class="src-badge" data-target="src-04">[src-04]</a><a href="#page-src-05" class="src-badge" data-target="src-05">[src-05]</a> <span class="anchor-tag" id="p-ov-2">^p-ov-2</span></p>
+<h2>2. 底層積木與三大核心組件</h2>
+<p>所有代理系統的共同最小建構積木都是 <strong><a href="#page-augmented-llm" class="wikilink" data-target="augmented-llm">[[Augmented LLM（擴充型語言模型）]]</a></strong>，並由三大核心組件支撐：(1) <strong><a href="#page-planning" class="wikilink" data-target="planning">[[Planning（規劃）]]</a></strong> 負責透過 CoT / ToT 拆解子任務並進行自我反思；(2) <strong><a href="#page-memory" class="wikilink" data-target="memory">[[Memory（記憶）]]</a></strong> 結合 Context Window 短期工作記憶與外部向量／Wiki 長期記憶；(3) <strong><a href="#page-tool-use" class="wikilink" data-target="tool-use">[[Tool Use（工具使用）]]</a></strong> 透過 Data、Action、Orchestration 三類工具以及開放標準 <strong><a href="#page-mcp" class="wikilink" data-target="mcp">[[Model Context Protocol (MCP)]]</a></strong> 與外部世界接軌。<a href="#page-src-01" class="src-badge" data-target="src-01">[src-01]</a><a href="#page-src-02" class="src-badge" data-target="src-02">[src-02]</a><a href="#page-src-04" class="src-badge" data-target="src-04">[src-04]</a><a href="#page-src-06" class="src-badge" data-target="src-06">[src-06]</a> <span class="anchor-tag" id="p-ov-3">^p-ov-3</span></p>
+<h2>3. 核心運作迴圈：ReAct（邊想邊做）</h2>
+<p>為了避免純思考鏈（CoT）在封閉推論中產生幻覺，現代 Agent 普遍採用 <strong><a href="#page-react" class="wikilink" data-target="react">[[ReAct（Reasoning + Acting）]]</a></strong> 迴圈，交替執行 <code>Thought（思考下一步）→ Action（呼叫外部工具）→ Observation（觀察環境回傳結果）</code>，將外部真實證據不斷帶回上下文視窗。<a href="#page-src-03" class="src-badge" data-target="src-03">[src-03]</a><a href="#page-src-02" class="src-badge" data-target="src-02">[src-02]</a> <span class="anchor-tag" id="p-ov-4">^p-ov-4</span></p>
+<h2>4. 架構選型、多代理與安全護欄</h2>
+<p>在工程實務上，系統設計沿著連續的 <strong><a href="#page-workflow-vs-agent" class="wikilink" data-target="workflow-vs-agent">[[自主性光譜（Agency Spectrum）]]</a></strong> 展開：若步驟可事先預期，應優先使用確定性的 <strong><a href="#page-workflow-patterns" class="wikilink" data-target="workflow-patterns">[[5 種常見 Workflow 模式]]</a></strong>（Prompt Chaining、Routing、Parallelization、Orchestrator-Workers、Evaluator-Optimizer）；只有面對複雜決策、難維護的規則或非結構化資料時（見 <strong><a href="#page-when-to-use-agents" class="wikilink" data-target="when-to-use-agents">[[when-to-use-agents]]</a></strong>），才升級為自主 Agent 或 <strong><a href="#page-multi-agent" class="wikilink" data-target="multi-agent">[[Multi-Agent 多代理系統（Manager 與 Decentralized Handoff）]]</a></strong>，並搭配多層次 <strong><a href="#page-guardrails" class="wikilink" data-target="guardrails">[[Guardrails 安全護欄與 Human-in-the-loop]]</a></strong> 確保安全可控。<a href="#page-src-01" class="src-badge" data-target="src-01">[src-01]</a><a href="#page-src-04" class="src-badge" data-target="src-04">[src-04]</a><a href="#page-src-05" class="src-badge" data-target="src-05">[src-05]</a> <span class="anchor-tag" id="p-ov-5">^p-ov-5</span></p></section><section class="wiki-page" id="page-00-scope" data-id="00-scope"><div style="font-size:0.8rem;color:var(--muted);font-family:monospace;">PAGE ID: 00-scope</div><h1>先討論、後生成：AI Agents LLM Wiki 範圍設定與逐篇 Ingest 討論紀錄</h1>
+<p>本文件記錄在正式生成與更新 Wiki 頁面之前，人機協作進行的 <strong>Scope 對齊</strong> 與 <strong>6 篇原始資料 Ingest 前討論（Pre-Ingest Discussions）</strong>。</p>
+<hr />
+<h2>Part 1：知識庫與教學簡報的範圍設定 (Scope &amp; Learning Objectives)</h2>
+<h3>1.1 目標讀者（Target Audience）</h3>
+<ul>
+<li>聽過 ChatGPT 等大型語言模型（LLM），但<strong>還不清楚「AI Agent（AI 代理）」跟一般聊天機器人有什麼本質差別</strong>的大學生或初學者。</li>
+<li>需要直觀的生活比喻、清楚的架構圖解，以及可追溯到權威文獻的具體案例。</li>
+</ul>
+<h3>1.2 核心教學目標（6 大 Learning Objectives）</h3>
+<table>
+<thead>
+<tr>
+<th>編號</th>
+<th>學習目標</th>
+<th>預計對應的 Wiki 核心概念頁</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>LO1</strong></td>
+<td>分辨一般對話式 LLM（Chatbot）與 AI Agent 的本質差異，理解自主性光譜（Agency Spectrum）</td>
+<td><code>&lt;a href="#page-ai-agent" class="wikilink" data-target="ai-agent"&gt;[[ai-agent]]&lt;/a&gt;</code>, <code>&lt;a href="#page-augmented-llm" class="wikilink" data-target="augmented-llm"&gt;[[augmented-llm]]&lt;/a&gt;</code></td>
+</tr>
+<tr>
+<td><strong>LO2</strong></td>
+<td>認識 Augmented LLM 基底與 Agent 的三大核心組件：Planning、Memory、Tool Use</td>
+<td><code>&lt;a href="#page-augmented-llm" class="wikilink" data-target="augmented-llm"&gt;[[augmented-llm]]&lt;/a&gt;</code>, <code>&lt;a href="#page-planning" class="wikilink" data-target="planning"&gt;[[planning]]&lt;/a&gt;</code>, <code>&lt;a href="#page-memory" class="wikilink" data-target="memory"&gt;[[memory]]&lt;/a&gt;</code>, <code>&lt;a href="#page-tool-use" class="wikilink" data-target="tool-use"&gt;[[tool-use]]&lt;/a&gt;</code></td>
+</tr>
+<tr>
+<td><strong>LO3</strong></td>
+<td>理解 Agent 如何透過 ReAct（Thought → Action → Observation）迴圈邊想邊做、克服幻覺</td>
+<td><code>&lt;a href="#page-react" class="wikilink" data-target="react"&gt;[[react]]&lt;/a&gt;</code>, <code>&lt;a href="#page-planning" class="wikilink" data-target="planning"&gt;[[planning]]&lt;/a&gt;</code></td>
+</tr>
+<tr>
+<td><strong>LO4</strong></td>
+<td>區分 Workflow（預設程式碼路徑）與 Agent（模型動態主導），並掌握 5 種常見 Workflow 模式</td>
+<td><code>&lt;a href="#page-workflow-vs-agent" class="wikilink" data-target="workflow-vs-agent"&gt;[[workflow-vs-agent]]&lt;/a&gt;</code>, <code>&lt;a href="#page-workflow-patterns" class="wikilink" data-target="workflow-patterns"&gt;[[workflow-patterns]]&lt;/a&gt;</code></td>
+</tr>
+<tr>
+<td><strong>LO5</strong></td>
+<td>了解工具標準化協議 MCP（Model Context Protocol）與單一代理升級為多代理（Multi-Agent）的架構</td>
+<td><code>&lt;a href="#page-mcp" class="wikilink" data-target="mcp"&gt;[[mcp]]&lt;/a&gt;</code>, <code>&lt;a href="#page-multi-agent" class="wikilink" data-target="multi-agent"&gt;[[multi-agent]]&lt;/a&gt;</code></td>
+</tr>
+<tr>
+<td><strong>LO6</strong></td>
+<td>判斷何時該用（與不該用）AI Agent，並認識多層次 Guardrails 安全護欄與人機協作機制</td>
+<td><code>&lt;a href="#page-when-to-use-agents" class="wikilink" data-target="when-to-use-agents"&gt;[[when-to-use-agents]]&lt;/a&gt;</code>, <code>&lt;a href="#page-guardrails" class="wikilink" data-target="guardrails"&gt;[[guardrails]]&lt;/a&gt;</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>Part 2：逐篇來源 Ingest 前討論（Discuss-Then-Generate Log）</h2>
+<h3>討論 #1 — <code>src-01</code>: Anthropic《Building Effective Agents》</h3>
+<ul>
+<li><strong>核心 Takeaways</strong>：</li>
+<li>Anthropic 將廣義的「Agentic Systems（代理型系統）」一分為二：<strong>Workflows（工作流）</strong> 是由預先寫好的程式碼路徑來編排 LLM 與工具；<strong>Agents（自主代理）</strong> 則是由 LLM 自己動態決定工作流程與工具使用方式。</li>
+<li>所有代理系統的地基都是 <strong>Augmented LLM（擴充型 LLM）</strong>：在基礎模型上加上檢索（Retrieval）、工具（Tools）與記憶（Memory）。</li>
+<li>實務上最常見的 5 種 Workflow 組裝模式：<strong>Prompt Chaining（提示串接）</strong>、<strong>Routing（路由分流）</strong>、<strong>Parallelization（平行化：Sectioning 與 Voting）</strong>、<strong>Orchestrator-Workers（協調者－工兵）</strong>、<strong>Evaluator-Optimizer（評估－優化迴圈）</strong>。</li>
+<li><strong>核心工程原則</strong>：永遠從最簡單的方案（單一 LLM 呼叫或 Workflow）開始，只有在任務無法預先寫死步驟時才使用自主 Agent，因為 Agent 會帶來更高的延遲與成本。</li>
+<li><strong>Wiki 生成／更新決策</strong>：</li>
+<li>新增來源頁：<code>&lt;a href="#page-src-01" class="wikilink" data-target="src-01"&gt;[[src-01-anthropic-effective-agents]]&lt;/a&gt;</code></li>
+<li>新增概念頁：<code>&lt;a href="#page-ai-agent" class="wikilink" data-target="ai-agent"&gt;[[ai-agent]]&lt;/a&gt;</code>, <code>&lt;a href="#page-augmented-llm" class="wikilink" data-target="augmented-llm"&gt;[[augmented-llm]]&lt;/a&gt;</code>, <code>&lt;a href="#page-workflow-vs-agent" class="wikilink" data-target="workflow-vs-agent"&gt;[[workflow-vs-agent]]&lt;/a&gt;</code>, <code>&lt;a href="#page-workflow-patterns" class="wikilink" data-target="workflow-patterns"&gt;[[workflow-patterns]]&lt;/a&gt;</code>, <code>&lt;a href="#page-when-to-use-agents" class="wikilink" data-target="when-to-use-agents"&gt;[[when-to-use-agents]]&lt;/a&gt;</code></li>
+</ul>
+<hr />
+<h3>討論 #2 — <code>src-02</code>: Lilian Weng《LLM Powered Autonomous Agents》</h3>
+<ul>
+<li><strong>核心 Takeaways</strong>：</li>
+<li>提出最經典的 Agent 三大組件公式：$\text{Agent} = \text{LLM Brain} + \text{Planning} + \text{Memory} + \text{Tool Use}$。</li>
+<li><strong>Planning（規劃）</strong> 包含兩面向：(a) <strong>Task Decomposition（任務拆解）</strong>，如 Chain of Thought (CoT)、Tree of Thoughts (ToT)；(b) <strong>Self-Reflection（自我反思）</strong>，如 ReAct、Reflexion，讓模型從過去的失敗行動中修正策略。</li>
+<li><strong>Memory（記憶）</strong> 類比人類記憶系統：感官記憶（嵌入表示）、<strong>短期記憶（Short-term Memory = 模型的 Context Window 上下文視窗）</strong>、<strong>長期記憶（Long-term Memory = 外部向量資料庫／知識庫，透過快速檢索讀寫）</strong>。</li>
+<li><strong>Tool Use（工具使用）</strong> 讓突破模型權重凍結的限制（如 MRKL、Toolformer、HuggingGPT、API-Bank）。</li>
+<li><strong>與既有知識的整合</strong>：</li>
+<li>完美補齊 <code>src-01</code> 中 <code>&lt;a href="#page-augmented-llm" class="wikilink" data-target="augmented-llm"&gt;[[augmented-llm]]&lt;/a&gt;</code> 的細節，把 Planning、Memory、Tool Use 各自獨立成概念頁。</li>
+<li><strong>Wiki 生成／更新決策</strong>：</li>
+<li>新增來源頁：<code>&lt;a href="#page-src-02" class="wikilink" data-target="src-02"&gt;[[src-02-lilian-weng-autonomous-agents]]&lt;/a&gt;</code></li>
+<li>新增概念頁：<code>&lt;a href="#page-planning" class="wikilink" data-target="planning"&gt;[[planning]]&lt;/a&gt;</code>, <code>&lt;a href="#page-memory" class="wikilink" data-target="memory"&gt;[[memory]]&lt;/a&gt;</code>, <code>&lt;a href="#page-tool-use" class="wikilink" data-target="tool-use"&gt;[[tool-use]]&lt;/a&gt;</code></li>
+<li>更新概念頁：<code>&lt;a href="#page-ai-agent" class="wikilink" data-target="ai-agent"&gt;[[ai-agent]]&lt;/a&gt;</code>, <code>&lt;a href="#page-augmented-llm" class="wikilink" data-target="augmented-llm"&gt;[[augmented-llm]]&lt;/a&gt;</code></li>
+</ul>
+<hr />
+<h3>討論 #3 — <code>src-03</code>: Yao et al.《ReAct: Synergizing Reasoning and Acting in Language Models》</h3>
+<ul>
+<li><strong>核心 Takeaways</strong>：</li>
+<li>傳統 <strong>Chain-of-Thought (CoT)</strong> 只在模型內部做封閉式推論，無法接觸外部世界，容易產生事實幻覺（Hallucination）並一路錯到底；純 <strong>Acting</strong> 則缺乏高階規劃與工作記憶。</li>
+<li><strong>ReAct</strong> 讓模型交錯產生 <strong>Thought（推論軌跡）→ Action（呼叫外部環境／工具）→ Observation（取得環境回饋）</strong>。</li>
+<li>實證結果：在知識密集任務（HotPotQA、FEVER）上透過查閱 Wikipedia API 克服了 CoT 的幻覺問題；在決策互動任務（ALFWorld、WebShop）上大幅超越純模仿學習與強化學習基準，且推論軌跡具人類可讀性與可除錯性。</li>
+<li><strong>與既有知識的整合</strong>：</li>
+<li>為 <code>&lt;a href="#page-planning" class="wikilink" data-target="planning"&gt;[[planning]]&lt;/a&gt;</code> 與 <code>&lt;a href="#page-tool-use" class="wikilink" data-target="tool-use"&gt;[[tool-use]]&lt;/a&gt;</code> 提供最具代表性的執行迴圈機制，並成為教學簡報的核心互動圖解。</li>
+<li><strong>Wiki 生成／更新決策</strong>：</li>
+<li>新增來源頁：<code>&lt;a href="#page-src-03" class="wikilink" data-target="src-03"&gt;[[src-03-react-synergizing-reasoning-acting]]&lt;/a&gt;</code></li>
+<li>新增概念頁：<code>&lt;a href="#page-react" class="wikilink" data-target="react"&gt;[[react]]&lt;/a&gt;</code></li>
+<li>更新概念頁：<code>&lt;a href="#page-planning" class="wikilink" data-target="planning"&gt;[[planning]]&lt;/a&gt;</code>, <code>&lt;a href="#page-tool-use" class="wikilink" data-target="tool-use"&gt;[[tool-use]]&lt;/a&gt;</code></li>
+</ul>
+<hr />
+<h3>討論 #4 — <code>src-04</code>: OpenAI《A Practical Guide to Building Agents》</h3>
+<ul>
+<li><strong>核心 Takeaways</strong>：</li>
+<li>定義 Agent 的三個實作基礎組件：<strong>Model（模型大腦）</strong>、<strong>Tools（Data / Action / Orchestration 三類工具）</strong>、<strong>Instructions（明確的指令、邊界與例外處理規範）</strong>。</li>
+<li>提出<strong>何時該建立 Agent 的三大判準</strong>：(a) 複雜且需依情境權衡的決策（如退款審核）；(b) 傳統規則引擎（if-else）過於龐大難維護（如資安審查）；(c) 高度仰賴非結構化資料（如自然語言對話、文件與圖片理賠）。</li>
+<li><strong>單一代理優先，必要時才拆分為多代理（Multi-Agent）</strong>，並將多代理分為兩種拓樸：<strong>Manager pattern（經理模式：中央代理把子代理當工具呼叫）</strong> 與 <strong>Decentralized pattern（去中心化模式：平輩代理透過 Handoff 移交控制權）</strong>。</li>
+<li><strong>Guardrails（安全護欄）必須採多層防禦（Defense-in-depth）</strong>：結合理性分類器、PII 個資過濾、工具風險分級（低／中／高風險），以及高風險操作前的 <strong>Human-in-the-loop（人類介入確認）</strong>。</li>
+<li><strong>與既有知識的整合</strong>：</li>
+<li>與 <code>src-01</code> 的「簡單優先」完全呼應，並補足企業級部署最關鍵的 <code>&lt;a href="#page-guardrails" class="wikilink" data-target="guardrails"&gt;[[guardrails]]&lt;/a&gt;</code> 與 <code>&lt;a href="#page-multi-agent" class="wikilink" data-target="multi-agent"&gt;[[multi-agent]]&lt;/a&gt;</code>。</li>
+<li><strong>Wiki 生成／更新決策</strong>：</li>
+<li>新增來源頁：<code>&lt;a href="#page-src-04" class="wikilink" data-target="src-04"&gt;[[src-04-openai-practical-guide-building-agents]]&lt;/a&gt;</code></li>
+<li>新增概念頁：<code>&lt;a href="#page-guardrails" class="wikilink" data-target="guardrails"&gt;[[guardrails]]&lt;/a&gt;</code>, <code>&lt;a href="#page-multi-agent" class="wikilink" data-target="multi-agent"&gt;[[multi-agent]]&lt;/a&gt;</code></li>
+<li>更新概念頁：<code>&lt;a href="#page-when-to-use-agents" class="wikilink" data-target="when-to-use-agents"&gt;[[when-to-use-agents]]&lt;/a&gt;</code>, <code>&lt;a href="#page-tool-use" class="wikilink" data-target="tool-use"&gt;[[tool-use]]&lt;/a&gt;</code>, <code>&lt;a href="#page-ai-agent" class="wikilink" data-target="ai-agent"&gt;[[ai-agent]]&lt;/a&gt;</code></li>
+</ul>
+<hr />
+<h3>討論 #5 — <code>src-05</code>: Hugging Face Agents Course《Unit 1: What are Agents?》</h3>
+<ul>
+<li><strong>核心 Takeaways</strong>：</li>
+<li>專為初學者設計的定義：AI Agent 是一個<strong>利用 AI 模型與環境互動，以達成使用者設定目標的系統</strong>，具備兩大部位：<strong>Brain（AI 模型負責思考與規劃）</strong> 與 <strong>Body（工具與能力負責執行動作）</strong>。</li>
+<li><strong>自主性光譜（Spectrum of Agency）</strong>：代理性不是非黑即白（0 或 1），而是連續光譜——從完全沒有自主性的簡單輸出、路由分流、多步驟工作流，一路到能自行決定迭代次數與控制流的自主 Agent。</li>
+<li>直觀生活比喻：一般 LLM 就像只會動口回答問題的顧問；AI Agent 則像有手有腳、能幫你查行事曆、訂機票、寄信的數位助理。</li>
+<li><strong>與既有知識的整合</strong>：</li>
+<li>為簡報開場（Slide 3–4）提供極佳的初學者心智模型，並將 <code>src-01</code> 的 Workflow vs Agent 放進連續的「Agency Spectrum」光譜中解釋。</li>
+<li><strong>Wiki 生成／更新決策</strong>：</li>
+<li>新增來源頁：<code>&lt;a href="#page-src-05" class="wikilink" data-target="src-05"&gt;[[src-05-hf-agents-course-what-are-agents]]&lt;/a&gt;</code></li>
+<li>更新概念頁：<code>&lt;a href="#page-ai-agent" class="wikilink" data-target="ai-agent"&gt;[[ai-agent]]&lt;/a&gt;</code>, <code>&lt;a href="#page-workflow-vs-agent" class="wikilink" data-target="workflow-vs-agent"&gt;[[workflow-vs-agent]]&lt;/a&gt;</code>, <code>&lt;a href="#page-react" class="wikilink" data-target="react"&gt;[[react]]&lt;/a&gt;</code></li>
+</ul>
+<hr />
+<h3>討論 #6 — <code>src-06</code>: Anthropic / Open Source《Model Context Protocol (MCP) — Introduction》</h3>
+<ul>
+<li><strong>核心 Takeaways</strong>：</li>
+<li><strong>痛點</strong>：過去每個 AI 應用要接不同外部資料源或工具（Google Drive、Slack、GitHub、Postgres），都得客製化寫一套連接器，造成 $N \times M$ 的整合碎片化問題。</li>
+<li><strong>核心比喻</strong>：MCP 是 <strong>AI 應用的 USB-C 開放標準介面</strong>，用單一開放協議統一連接模型與外部資料源（Resources）、工具（Tools）與提示模板（Prompts）。</li>
+<li><strong>三層架構</strong>：<strong>MCP Host</strong>（如 Claude Desktop、IDE 等 AI 應用）內含 <strong>MCP Client</strong>，透過 1:1 連線與提供特定能力的輕量級 <strong>MCP Server</strong> 通訊（可存取本地資料或遠端 Web API）。</li>
+<li><strong>與既有知識的整合</strong>：</li>
+<li>銜接 <code>&lt;a href="#page-tool-use" class="wikilink" data-target="tool-use"&gt;[[tool-use]]&lt;/a&gt;</code> 與 <code>&lt;a href="#page-augmented-llm" class="wikilink" data-target="augmented-llm"&gt;[[augmented-llm]]&lt;/a&gt;</code>，讓學生理解現代 AI Agent 如何以標準化方式擴充工具生態系。</li>
+<li><strong>Wiki 生成／更新決策</strong>：</li>
+<li>新增來源頁：<code>&lt;a href="#page-src-06" class="wikilink" data-target="src-06"&gt;[[src-06-model-context-protocol-intro]]&lt;/a&gt;</code></li>
+<li>新增概念頁：<code>&lt;a href="#page-mcp" class="wikilink" data-target="mcp"&gt;[[mcp]]&lt;/a&gt;</code></li>
+<li>更新概念頁：<code>&lt;a href="#page-tool-use" class="wikilink" data-target="tool-use"&gt;[[tool-use]]&lt;/a&gt;</code>, <code>&lt;a href="#page-augmented-llm" class="wikilink" data-target="augmented-llm"&gt;[[augmented-llm]]&lt;/a&gt;</code></li>
+</ul></section><section class="wiki-page" id="page-log" data-id="log"><div style="font-size:0.8rem;color:var(--muted);font-family:monospace;">PAGE ID: log</div><h1>AI Agents LLM Wiki — 操作時間軸紀錄 (<code>log.md</code>)</h1>
+<blockquote>
+<p>本檔案為 append-only 時間序列紀錄。可使用 <code>grep "^## \[" wiki/log.md</code> 快速檢視最近操作。</p>
+</blockquote>
+<h2>[2026-11-10] discuss | 00-scope: 建立讀者設定與 6 大教學目標 (LO1–LO6)</h2>
+<ul>
+<li>建立 <code>wiki/discussions/00-scope.md</code>，對齊初學者受眾與 6 篇候選文獻的 Ingest 前討論重點。</li>
+</ul>
+<h2>[2026-11-10] ingest | src-01: Building Effective Agents (Anthropic, 2024)</h2>
+<ul>
+<li>讀取 <code>raw/src-01-anthropic-effective-agents.md</code>（18,979 字元）並完成討論。</li>
+<li>新增來源頁：<code>wiki/sources/src-01-anthropic-effective-agents.md</code>。</li>
+<li>建立／更新概念頁：<code>&lt;a href="#page-ai-agent" class="wikilink" data-target="ai-agent"&gt;[[ai-agent]]&lt;/a&gt;</code>, <code>&lt;a href="#page-augmented-llm" class="wikilink" data-target="augmented-llm"&gt;[[augmented-llm]]&lt;/a&gt;</code>, <code>&lt;a href="#page-workflow-vs-agent" class="wikilink" data-target="workflow-vs-agent"&gt;[[workflow-vs-agent]]&lt;/a&gt;</code>, <code>&lt;a href="#page-workflow-patterns" class="wikilink" data-target="workflow-patterns"&gt;[[workflow-patterns]]&lt;/a&gt;</code>, <code>&lt;a href="#page-when-to-use-agents" class="wikilink" data-target="when-to-use-agents"&gt;[[when-to-use-agents]]&lt;/a&gt;</code>。</li>
+</ul>
+<h2>[2026-11-10] ingest | src-02: LLM Powered Autonomous Agents (Lilian Weng, 2023)</h2>
+<ul>
+<li>讀取 <code>raw/src-02-lilian-weng-autonomous-agents.md</code>（43,603 字元）並完成討論。</li>
+<li>新增來源頁：<code>wiki/sources/src-02-lilian-weng-autonomous-agents.md</code>。</li>
+<li>建立／更新概念頁：<code>&lt;a href="#page-planning" class="wikilink" data-target="planning"&gt;[[planning]]&lt;/a&gt;</code>, <code>&lt;a href="#page-memory" class="wikilink" data-target="memory"&gt;[[memory]]&lt;/a&gt;</code>, <code>&lt;a href="#page-tool-use" class="wikilink" data-target="tool-use"&gt;[[tool-use]]&lt;/a&gt;</code>, <code>&lt;a href="#page-ai-agent" class="wikilink" data-target="ai-agent"&gt;[[ai-agent]]&lt;/a&gt;</code>, <code>&lt;a href="#page-augmented-llm" class="wikilink" data-target="augmented-llm"&gt;[[augmented-llm]]&lt;/a&gt;</code>。</li>
+</ul>
+<h2>[2026-11-10] ingest | src-03: ReAct: Synergizing Reasoning and Acting in Language Models (Yao et al., 2022)</h2>
+<ul>
+<li>讀取 <code>raw/src-03-react-synergizing-reasoning-acting.md</code>（4,086 字元）並完成討論。</li>
+<li>新增來源頁：<code>wiki/sources/src-03-react-synergizing-reasoning-acting.md</code>。</li>
+<li>建立／更新概念頁：<code>&lt;a href="#page-react" class="wikilink" data-target="react"&gt;[[react]]&lt;/a&gt;</code>, <code>&lt;a href="#page-planning" class="wikilink" data-target="planning"&gt;[[planning]]&lt;/a&gt;</code>, <code>&lt;a href="#page-tool-use" class="wikilink" data-target="tool-use"&gt;[[tool-use]]&lt;/a&gt;</code>。</li>
+</ul>
+<h2>[2026-11-10] ingest | src-04: A Practical Guide to Building Agents (OpenAI, 2025)</h2>
+<ul>
+<li>讀取 <code>raw/src-04-openai-practical-guide-building-agents.md</code>（30,427 字元）並完成討論。</li>
+<li>新增來源頁：<code>wiki/sources/src-04-openai-practical-guide-building-agents.md</code>。</li>
+<li>建立／更新概念頁：<code>&lt;a href="#page-guardrails" class="wikilink" data-target="guardrails"&gt;[[guardrails]]&lt;/a&gt;</code>, <code>&lt;a href="#page-multi-agent" class="wikilink" data-target="multi-agent"&gt;[[multi-agent]]&lt;/a&gt;</code>, <code>&lt;a href="#page-when-to-use-agents" class="wikilink" data-target="when-to-use-agents"&gt;[[when-to-use-agents]]&lt;/a&gt;</code>, <code>&lt;a href="#page-tool-use" class="wikilink" data-target="tool-use"&gt;[[tool-use]]&lt;/a&gt;</code>, <code>&lt;a href="#page-ai-agent" class="wikilink" data-target="ai-agent"&gt;[[ai-agent]]&lt;/a&gt;</code>。</li>
+</ul>
+<h2>[2026-11-10] ingest | src-05: Hugging Face Agents Course — Unit 1: What are Agents? (2025)</h2>
+<ul>
+<li>讀取 <code>raw/src-05-hf-agents-course-what-are-agents.md</code>（7,326 字元）並完成討論。</li>
+<li>新增來源頁：<code>wiki/sources/src-05-hf-agents-course-what-are-agents.md</code>。</li>
+<li>更新概念頁：<code>&lt;a href="#page-ai-agent" class="wikilink" data-target="ai-agent"&gt;[[ai-agent]]&lt;/a&gt;</code>, <code>&lt;a href="#page-workflow-vs-agent" class="wikilink" data-target="workflow-vs-agent"&gt;[[workflow-vs-agent]]&lt;/a&gt;</code>, <code>&lt;a href="#page-react" class="wikilink" data-target="react"&gt;[[react]]&lt;/a&gt;</code>。</li>
+</ul>
+<h2>[2026-11-10] ingest | src-06: Model Context Protocol (MCP) — Introduction (2024)</h2>
+<ul>
+<li>讀取 <code>raw/src-06-model-context-protocol-intro.md</code>（2,568 字元）並完成討論。</li>
+<li>新增來源頁：<code>wiki/sources/src-06-model-context-protocol-intro.md</code>。</li>
+<li>建立／更新概念頁：<code>&lt;a href="#page-mcp" class="wikilink" data-target="mcp"&gt;[[mcp]]&lt;/a&gt;</code>, <code>&lt;a href="#page-tool-use" class="wikilink" data-target="tool-use"&gt;[[tool-use]]&lt;/a&gt;</code>, <code>&lt;a href="#page-augmented-llm" class="wikilink" data-target="augmented-llm"&gt;[[augmented-llm]]&lt;/a&gt;</code>, <code>&lt;a href="#page-overview" class="wikilink" data-target="overview"&gt;[[overview]]&lt;/a&gt;</code>, <code>&lt;a href="#page-index" class="wikilink" data-target="index"&gt;[[index]]&lt;/a&gt;</code>。</li>
+</ul></section><section class="wiki-page" id="page-ai-agent" data-id="ai-agent"><div style="font-size:0.8rem;color:var(--muted);font-family:monospace;">PAGE ID: ai-agent</div><h1>AI Agent（人工智慧代理）</h1>
+<p><strong>AI Agent（人工智慧代理）</strong> 是一個利用 AI 模型與其外部環境互動，以獨立完成使用者所設定目標的系統；與只會被動「一問一答」的傳統聊天機器人（Chatbot）不同，Agent 能主動拆解步驟、呼叫外部工具並根據環境回饋修正行為。<a href="#page-src-04" class="src-badge" data-target="src-04">[src-04]</a><a href="#page-src-05" class="src-badge" data-target="src-05">[src-05]</a> <span class="anchor-tag" id="p-agent-1">^p-agent-1</span>
+從初學者的直觀比喻來看（參見 <a href="#page-src-05" class="wikilink" data-target="src-05">[[Hugging Face Agents Course]]</a>），一個 AI Agent 就像擁有兩個核心部位的數位助理：<strong>Brain（大腦 ＝ 語言模型 LLM）</strong> 負責思考、推論與規劃下一步；<strong>Body（身體 ＝ 工具與能力 Tools &amp; Capabilities）</strong> 則賦予它在真實世界行動的手腳，例如搜尋網頁、查詢資料庫、寄送電子郵件或執行程式碼。<a href="#page-src-05" class="src-badge" data-target="src-05">[src-05]</a> <span class="anchor-tag" id="p-agent-2">^p-agent-2</span>
+從系統架構的角度來看，<a href="#page-src-02" class="wikilink" data-target="src-02">[[Lilian Weng (2023)]]</a> 提出最具代表性的自主代理三大支柱公式：以 LLM 作為核心控制器，外加 <strong><a href="#page-planning" class="wikilink" data-target="planning">[[Planning（規劃：子任務拆解與自我反思）]]</a></strong>、<strong><a href="#page-memory" class="wikilink" data-target="memory">[[Memory（記憶：短期上下文視窗與長期向量知識庫）]]</a></strong> 以及 <strong><a href="#page-tool-use" class="wikilink" data-target="tool-use">[[Tool Use（工具使用：呼叫外部 API 與工具）]]</a></strong>。<a href="#page-src-02" class="src-badge" data-target="src-02">[src-02]</a> <span class="anchor-tag" id="p-agent-3">^p-agent-3</span>
+而在工程實作層面，<a href="#page-src-04" class="wikilink" data-target="src-04">[[OpenAI (2025)]]</a> 將每一個可運行的 Agent 濃縮為三個基礎要素（Foundational Components）：(1) <strong>Model</strong>（驅動推論與決策的 LLM）；(2) <strong>Tools</strong>（代理可用來讀取資料或執行動作的外部函數與 API）；(3) <strong>Instructions</strong>（開發者設定的明確行為準則、工作步驟與安全邊界）。<a href="#page-src-04" class="src-badge" data-target="src-04">[src-04]</a> <span class="anchor-tag" id="p-agent-4">^p-agent-4</span>
+要特別注意的是，<a href="#page-src-01" class="wikilink" data-target="src-01">[[Anthropic (2024)]]</a> 與 <a href="#page-src-05" class="wikilink" data-target="src-05">[[Hugging Face (2025)]]</a> 都強調「代理性（Agency）」是一條連續的 <strong><a href="#page-workflow-vs-agent" class="wikilink" data-target="workflow-vs-agent">[[自主性光譜（Spectrum of Agency）]]</a></strong>：從步驟由程式碼固定編排的確定性 <strong>Workflow（工作流）</strong>，一路延伸到由模型動態決定控制流與迴圈次數的高自主 <strong>Autonomous Agent</strong>。<a href="#page-src-01" class="src-badge" data-target="src-01">[src-01]</a><a href="#page-src-05" class="src-badge" data-target="src-05">[src-05]</a> <span class="anchor-tag" id="p-agent-5">^p-agent-5</span></p>
+<h2>相關頁面</h2>
+<ul>
+<li>核心基底與組件：<a href="#page-augmented-llm" class="wikilink" data-target="augmented-llm">[[augmented-llm]]</a> · <a href="#page-planning" class="wikilink" data-target="planning">[[planning]]</a> · <a href="#page-memory" class="wikilink" data-target="memory">[[memory]]</a> · <a href="#page-tool-use" class="wikilink" data-target="tool-use">[[tool-use]]</a></li>
+<li>運作迴圈與架構：<a href="#page-react" class="wikilink" data-target="react">[[react]]</a> · <a href="#page-workflow-vs-agent" class="wikilink" data-target="workflow-vs-agent">[[workflow-vs-agent]]</a> · <a href="#page-workflow-patterns" class="wikilink" data-target="workflow-patterns">[[workflow-patterns]]</a> · <a href="#page-multi-agent" class="wikilink" data-target="multi-agent">[[multi-agent]]</a></li>
+<li>實務落地與安全：<a href="#page-when-to-use-agents" class="wikilink" data-target="when-to-use-agents">[[when-to-use-agents]]</a> · <a href="#page-guardrails" class="wikilink" data-target="guardrails">[[guardrails]]</a> · <a href="#page-mcp" class="wikilink" data-target="mcp">[[mcp]]</a></li>
+<li>原始文獻：<a href="#page-src-01" class="wikilink" data-target="src-01">[<a href="#page-src-01" class="src-badge" data-target="src-01">[src-01]</a>]</a> · <a href="#page-src-02" class="wikilink" data-target="src-02">[<a href="#page-src-02" class="src-badge" data-target="src-02">[src-02]</a>]</a> · <a href="#page-src-04" class="wikilink" data-target="src-04">[<a href="#page-src-04" class="src-badge" data-target="src-04">[src-04]</a>]</a> · <a href="#page-src-05" class="wikilink" data-target="src-05">[<a href="#page-src-05" class="src-badge" data-target="src-05">[src-05]</a>]</a></li>
+</ul></section><section class="wiki-page" id="page-augmented-llm" data-id="augmented-llm"><div style="font-size:0.8rem;color:var(--muted);font-family:monospace;">PAGE ID: augmented-llm</div><h1>Augmented LLM（擴充型語言模型）</h1>
+<p>根據 <a href="#page-src-01" class="wikilink" data-target="src-01">[[Anthropic《Building Effective Agents》]]</a>，不論是確定性的 <a href="#page-workflow-vs-agent" class="wikilink" data-target="workflow-vs-agent">[[Workflow]]</a> 還是高自主性的 <a href="#page-ai-agent" class="wikilink" data-target="ai-agent">[[Agent]]</a>，它們最底層的基本建構積木（building block）都是 <strong>Augmented LLM（擴充型語言模型）</strong>。<a href="#page-src-01" class="src-badge" data-target="src-01">[src-01]</a> <span class="anchor-tag" id="p-aug-1">^p-aug-1</span>
+單純的預訓練語言模型只能根據訓練截止前的參數權重產生文字；而 <strong>Augmented LLM</strong> 則在模型外圍加上三種關鍵擴充能力：<strong>Retrieval（檢索外部知識）</strong>、<strong><a href="#page-tool-use" class="wikilink" data-target="tool-use">[[Tools（呼叫外部工具）]]</a></strong> 與 <strong><a href="#page-memory" class="wikilink" data-target="memory">[[Memory（讀寫短期與長期記憶）]]</a></strong>，且現代模型已能主動決定何時產生搜尋查詢、選用哪個工具、以及哪些資訊應該保留到記憶中。<a href="#page-src-01" class="src-badge" data-target="src-01">[src-01]</a><a href="#page-src-02" class="src-badge" data-target="src-02">[src-02]</a> <span class="anchor-tag" id="p-aug-2">^p-aug-2</span>
+在實作 Augmented LLM 的外部連接時，工程團隊可以使用自訂函數呼叫（Function Calling），或是採用 <a href="#page-src-06" class="wikilink" data-target="src-06">[[Anthropic 開源的 Model Context Protocol (MCP)]]</a> 標準協議，以統一的 Client-Server 介面掛載本地與遠端的資料源和工具。<a href="#page-src-01" class="src-badge" data-target="src-01">[src-01]</a><a href="#page-src-06" class="src-badge" data-target="src-06">[src-06]</a> <span class="anchor-tag" id="p-aug-3">^p-aug-3</span></p>
+<h2>相關頁面</h2>
+<ul>
+<li>延伸組件：<a href="#page-planning" class="wikilink" data-target="planning">[[planning]]</a> · <a href="#page-memory" class="wikilink" data-target="memory">[[memory]]</a> · <a href="#page-tool-use" class="wikilink" data-target="tool-use">[[tool-use]]</a> · <a href="#page-mcp" class="wikilink" data-target="mcp">[[mcp]]</a></li>
+<li>上層架構：<a href="#page-ai-agent" class="wikilink" data-target="ai-agent">[[ai-agent]]</a> · <a href="#page-workflow-vs-agent" class="wikilink" data-target="workflow-vs-agent">[[workflow-vs-agent]]</a> · <a href="#page-workflow-patterns" class="wikilink" data-target="workflow-patterns">[[workflow-patterns]]</a></li>
+<li>原始文獻：<a href="#page-src-01" class="wikilink" data-target="src-01">[<a href="#page-src-01" class="src-badge" data-target="src-01">[src-01]</a>]</a> · <a href="#page-src-02" class="wikilink" data-target="src-02">[<a href="#page-src-02" class="src-badge" data-target="src-02">[src-02]</a>]</a> · <a href="#page-src-06" class="wikilink" data-target="src-06">[<a href="#page-src-06" class="src-badge" data-target="src-06">[src-06]</a>]</a></li>
+</ul></section><section class="wiki-page" id="page-guardrails" data-id="guardrails"><div style="font-size:0.8rem;color:var(--muted);font-family:monospace;">PAGE ID: guardrails</div><h1>Guardrails &amp; Human-in-the-Loop（多層次安全護欄与人機協作）</h1>
+<p>因為自主 <a href="#page-ai-agent" class="wikilink" data-target="ai-agent">[[AI Agent]]</a> 能夠呼叫 <a href="#page-tool-use" class="wikilink" data-target="tool-use">[[外部動作工具]]</a> 實際修改資料庫、發送郵件或執行交易，一旦發生推論錯誤或遭受惡意提示注入（Prompt Injection），後果遠比一般聊天機器人嚴重；<a href="#page-src-01" class="wikilink" data-target="src-01">[[Anthropic (2024)]]</a> 與 <a href="#page-src-04" class="wikilink" data-target="src-04">[[OpenAI (2025)]]</a> 都強調，生產環境的 Agent 必須配置嚴格的 <strong>Guardrails（安全護欄）</strong> 與檢查點。<a href="#page-src-01" class="src-badge" data-target="src-01">[src-01]</a><a href="#page-src-04" class="src-badge" data-target="src-04">[src-04]</a> <span class="anchor-tag" id="p-grd-1">^p-grd-1</span>
+<a href="#page-src-04" class="wikilink" data-target="src-04">[[OpenAI《A Practical Guide to Building Agents》]]</a> 指出，Guardrails 不應只依賴單一規則，而應建構 <strong>多層防禦體系（Layered Defense-in-Depth）</strong>，涵蓋：(1) <strong>Relevance classifier（相關性分類器）</strong> 攔截超出代理職責範圍的離題請求；(2) <strong>Safety classifier（安全分類器）</strong> 偵測越獄（Jailbreaks）與提示詞注入攻擊；(3) <strong>PII filter（個資過濾器）</strong> 防止身分證號、信用卡等敏感個人資料外洩；(4) <strong>Moderation 與 Output validation（內容審核與輸出格式／品牌規範驗證）</strong>。<a href="#page-src-04" class="src-badge" data-target="src-04">[src-04]</a> <span class="anchor-tag" id="p-grd-2">^p-grd-2</span>
+針對 <a href="#page-tool-use" class="wikilink" data-target="tool-use">[[工具呼叫安全（Tool Safeguards）]]</a>，<a href="#page-src-04" class="wikilink" data-target="src-04">[[OpenAI]]</a> 建議為每一個工具進行 <strong>風險分級（Low / Medium / High Risk）</strong>：根據工具是「唯讀（read-only）或寫入（write）」、「是否可逆（reversibility）」、「所需權限範圍」與「是否涉及金錢財務影響」來決定管控強度；唯讀低風險工具可自動放行，而像「大額退費、刪除生產資料、發送全體通知」等高風險或不可逆動作則必須攔截。<a href="#page-src-04" class="src-badge" data-target="src-04">[src-04]</a><a href="#page-src-01" class="src-badge" data-target="src-01">[src-01]</a> <span class="anchor-tag" id="p-grd-3">^p-grd-3</span>
+最後一道關鍵防線是 <strong>Human-in-the-loop（人類介入機制）</strong> 與 <strong>沙盒環境（Sandboxed testing）</strong>：當 Agent 超過最大重試／失敗次數門檻（failure threshold）仍無法完成任務，或是即將執行高風險敏感動作時，系統必須自動暫停並移交給人類審核批准（或在隔離的 Sandbox 中先完成驗證），同時兼顧系統自主性與操作安全性（也彌補 <a href="#page-src-02" class="wikilink" data-target="src-02">[[Lilian Weng]]</a> 指出的長程規劃錯誤恢復難題）。<a href="#page-src-01" class="src-badge" data-target="src-01">[src-01]</a><a href="#page-src-02" class="src-badge" data-target="src-02">[src-02]</a><a href="#page-src-04" class="src-badge" data-target="src-04">[src-04]</a> <span class="anchor-tag" id="p-grd-4">^p-grd-4</span></p>
+<h2>相關頁面</h2>
+<ul>
+<li>關聯概念：<a href="#page-when-to-use-agents" class="wikilink" data-target="when-to-use-agents">[[when-to-use-agents]]</a> · <a href="#page-tool-use" class="wikilink" data-target="tool-use">[[tool-use]]</a> · <a href="#page-workflow-patterns" class="wikilink" data-target="workflow-patterns">[[workflow-patterns]]</a> · <a href="#page-ai-agent" class="wikilink" data-target="ai-agent">[[ai-agent]]</a></li>
+<li>原始文獻：<a href="#page-src-04" class="wikilink" data-target="src-04">[<a href="#page-src-04" class="src-badge" data-target="src-04">[src-04]</a>]</a> · <a href="#page-src-01" class="wikilink" data-target="src-01">[<a href="#page-src-01" class="src-badge" data-target="src-01">[src-01]</a>]</a> · <a href="#page-src-02" class="wikilink" data-target="src-02">[<a href="#page-src-02" class="src-badge" data-target="src-02">[src-02]</a>]</a></li>
+</ul></section><section class="wiki-page" id="page-mcp" data-id="mcp"><div style="font-size:0.8rem;color:var(--muted);font-family:monospace;">PAGE ID: mcp</div><h1>MCP（Model Context Protocol，模型上下文協議）</h1>
+<p><strong>Model Context Protocol (MCP)</strong> 是由 <a href="#page-src-06" class="wikilink" data-target="src-06">[[Anthropic 開源的開放標準協議]]</a>，專門用來統一應用程式如何向大型語言模型提供外部上下文資料（Context）與 <a href="#page-tool-use" class="wikilink" data-target="tool-use">[[工具呼叫能力]]</a>。<a href="#page-src-06" class="src-badge" data-target="src-06">[src-06]</a> <span class="anchor-tag" id="p-mcp-1">^p-mcp-1</span>
+官方以 <strong>「AI 應用程式的 USB-C 連接埠」</strong> 來比喻 MCP：在沒有 MCP 之前，如果世界上有 $N$ 個 AI 應用（IDE、聊天介面、Agent 框架）想要連接 $M$ 個外部系統（Google Drive、Slack、GitHub、PostgreSQL），社群必須重複撰寫 $N \times M$ 套客製化連接器；透過 MCP 標準協議，每個工具只需實作一次 MCP Server，所有支援 MCP 的 AI 應用就能直接插上使用，將整合複雜度降為 $N + M$。<a href="#page-src-06" class="src-badge" data-target="src-06">[src-06]</a> <span class="anchor-tag" id="p-mcp-2">^p-mcp-2</span>
+MCP 的運作建立在清晰的 <strong>Host / Client / Server 三層架構</strong> 之上：(1) <strong>MCP Hosts</strong> 是需要透過 MCP 取得資料或呼叫工具的 AI 應用程式（如 Claude Desktop、AI 程式碼編輯器或 <a href="#page-ai-agent" class="wikilink" data-target="ai-agent">[[Agent]]</a> 系統）；(2) <strong>MCP Clients</strong> 內嵌於 Host 之中，負責與特定的 Server 維持一對一（1:1）的雙向協議連線；(3) <strong>MCP Servers</strong> 則是輕量級服務程式，負責將本地資料源（Local Data Sources，如本機檔案、SQLite 資料庫）或遠端服務（Remote Services，如外部 REST API）封裝成標準的 Resources、Tools 與 Prompts 供模型安全調用。<a href="#page-src-06" class="src-badge" data-target="src-06">[src-06]</a><a href="#page-src-01" class="src-badge" data-target="src-01">[src-01]</a> <span class="anchor-tag" id="p-mcp-3">^p-mcp-3</span></p>
+<h2>相關頁面</h2>
+<ul>
+<li>工具與基底：<a href="#page-tool-use" class="wikilink" data-target="tool-use">[[tool-use]]</a> · <a href="#page-augmented-llm" class="wikilink" data-target="augmented-llm">[[augmented-llm]]</a> · <a href="#page-ai-agent" class="wikilink" data-target="ai-agent">[[ai-agent]]</a></li>
+<li>安全邊界：<a href="#page-guardrails" class="wikilink" data-target="guardrails">[[guardrails]]</a></li>
+<li>原始文獻：<a href="#page-src-06" class="wikilink" data-target="src-06">[<a href="#page-src-06" class="src-badge" data-target="src-06">[src-06]</a>]</a> · <a href="#page-src-01" class="wikilink" data-target="src-01">[<a href="#page-src-01" class="src-badge" data-target="src-01">[src-01]</a>]</a></li>
+</ul></section><section class="wiki-page" id="page-memory" data-id="memory"><div style="font-size:0.8rem;color:var(--muted);font-family:monospace;">PAGE ID: memory</div><h1>Memory（記憶系統）</h1>
+<p><a href="#page-src-02" class="wikilink" data-target="src-02">[[Lilian Weng (2023)]]</a> 將 <a href="#page-ai-agent" class="wikilink" data-target="ai-agent">[[AI Agent]]</a> 的記憶機制對照人類心理學的記憶分類，分為感官記憶（Sensory Memory，對應文字或影像的 Embedding 嵌入向量表示）、<strong>短期記憶（Short-term Memory）</strong> 與 <strong>長期記憶（Long-term Memory）</strong>。<a href="#page-src-02" class="src-badge" data-target="src-02">[src-02]</a> <span class="anchor-tag" id="p-mem-1">^p-mem-1</span>
+<strong>短期記憶（Short-term / Working Memory）</strong> 直接對應大型語言模型的 <strong>上下文學習（In-context Learning）</strong>：所有當前對話紀錄、工具回傳的觀察結果與進行中的子任務狀態都放在 Context Window 內，直接受限於模型的上下文視窗長度上限（finite context window length）。<a href="#page-src-02" class="src-badge" data-target="src-02">[src-02]</a> <span class="anchor-tag" id="p-mem-2">^p-mem-2</span>
+<strong>長期記憶（Long-term Memory）</strong> 則是讓 Agent 在啟動時或執行過程中可以隨時查詢與寫入的 <strong>外部持久儲存空間（External Persistent Storage）</strong>，常見實作包含以近似最近鄰搜尋（ANN / MIPS，如 FAISS、HNSW）加速的外部向量資料庫，或是像本專案一樣由 LLM 結構化維護並建立雙向連結與 <code>index.md</code> 目錄的持久知識庫（LLM Wiki）。<a href="#page-src-01" class="src-badge" data-target="src-01">[src-01]</a><a href="#page-src-02" class="src-badge" data-target="src-02">[src-02]</a> <span class="anchor-tag" id="p-mem-3">^p-mem-3</span>
+結合短期與長期記憶，能讓 <a href="#page-augmented-llm" class="wikilink" data-target="augmented-llm">[[Augmented LLM]]</a> 在跨回合甚至跨工作階段（cross-session）中保留使用者偏好、歷史經驗與領域知識，避免每次詢問都從零開始重新推導。<a href="#page-src-01" class="src-badge" data-target="src-01">[src-01]</a><a href="#page-src-02" class="src-badge" data-target="src-02">[src-02]</a> <span class="anchor-tag" id="p-mem-4">^p-mem-4</span></p>
+<h2>相關頁面</h2>
+<ul>
+<li>三大支柱：<a href="#page-ai-agent" class="wikilink" data-target="ai-agent">[[ai-agent]]</a> · <a href="#page-augmented-llm" class="wikilink" data-target="augmented-llm">[[augmented-llm]]</a> · <a href="#page-planning" class="wikilink" data-target="planning">[[planning]]</a> · <a href="#page-tool-use" class="wikilink" data-target="tool-use">[[tool-use]]</a></li>
+<li>原始文獻：<a href="#page-src-02" class="wikilink" data-target="src-02">[<a href="#page-src-02" class="src-badge" data-target="src-02">[src-02]</a>]</a> · <a href="#page-src-01" class="wikilink" data-target="src-01">[<a href="#page-src-01" class="src-badge" data-target="src-01">[src-01]</a>]</a></li>
+</ul></section><section class="wiki-page" id="page-multi-agent" data-id="multi-agent"><div style="font-size:0.8rem;color:var(--muted);font-family:monospace;">PAGE ID: multi-agent</div><h1>Multi-Agent Systems（多代理系統）</h1>
+<p>在設計 <a href="#page-ai-agent" class="wikilink" data-target="ai-agent">[[AI Agent]]</a> 時，<a href="#page-src-04" class="wikilink" data-target="src-04">[[OpenAI《A Practical Guide to Building Agents》]]</a> 提出的黃金法則是：<strong>永遠先從單一代理（Single-agent system）開始</strong>，透過逐步增加 <a href="#page-tool-use" class="wikilink" data-target="tool-use">[[工具]]</a> 與結構化指令來擴充能力，而不是一開始就建立複雜的多代理網路。<a href="#page-src-04" class="src-badge" data-target="src-04">[src-04]</a> <span class="anchor-tag" id="p-ma-1">^p-ma-1</span>
+什麼時候才需要把單一代理拆分成 <strong>Multi-Agent System（多代理系統）</strong>？<a href="#page-src-04" class="wikilink" data-target="src-04">[[OpenAI (2025)]]</a> 指出兩個明確訊號：(1) <strong>複雜指令與多重分支（Complex logic）</strong>：當單一提示詞塞滿太多條件分支與例外規則，導致模型難以穩定遵守時；(2) <strong>工具過載（Tool overload）</strong>：當單一代理掛載了太多名稱、參數或功能重疊的工具，即使改善工具說明仍常選錯工具時。<a href="#page-src-04" class="src-badge" data-target="src-04">[src-04]</a> <span class="anchor-tag" id="p-ma-2">^p-ma-2</span>
+多代理系統在架構上主要分為兩種協作拓樸：第一種是 <strong>Manager Pattern（經理／中央調度模式，又稱 Agents as Tools）</strong>，由一個中央 Manager Agent 掌握與使用者的對話控制權，並透過編排型工具（Orchestration tools）在幕後呼叫多個專職子代理（如翻譯代理、研究代理、帳務代理）後彙整回答，這與 <a href="#page-src-01" class="wikilink" data-target="src-01">[[Anthropic 的 Orchestrator-Workers 模式]]</a> 相呼應。<a href="#page-src-04" class="src-badge" data-target="src-04">[src-04]</a><a href="#page-src-01" class="src-badge" data-target="src-01">[src-01]</a> <span class="anchor-tag" id="p-ma-3">^p-ma-3</span>
+第二種是 <strong>Decentralized Pattern（去中心化／平輩交棒模式）</strong>，多個專職代理處於平等地位，當負責初步分流的 Triage Agent 判斷問題屬於「訂單退換貨」或「技術維修」時，會執行 <strong>Handoff（單向控制權移交）</strong>，把整段對話狀態與後續主導權直接交棒給該領域的專職代理接手與使用者互動。<a href="#page-src-04" class="src-badge" data-target="src-04">[src-04]</a><a href="#page-src-05" class="src-badge" data-target="src-05">[src-05]</a> <span class="anchor-tag" id="p-ma-4">^p-ma-4</span></p>
+<h2>相關頁面</h2>
+<ul>
+<li>核心概念：<a href="#page-ai-agent" class="wikilink" data-target="ai-agent">[[ai-agent]]</a> · <a href="#page-tool-use" class="wikilink" data-target="tool-use">[[tool-use]]</a> · <a href="#page-workflow-patterns" class="wikilink" data-target="workflow-patterns">[[workflow-patterns]]</a></li>
+<li>選型與安全：<a href="#page-when-to-use-agents" class="wikilink" data-target="when-to-use-agents">[[when-to-use-agents]]</a> · <a href="#page-guardrails" class="wikilink" data-target="guardrails">[[guardrails]]</a></li>
+<li>原始文獻：<a href="#page-src-04" class="wikilink" data-target="src-04">[<a href="#page-src-04" class="src-badge" data-target="src-04">[src-04]</a>]</a> · <a href="#page-src-01" class="wikilink" data-target="src-01">[<a href="#page-src-01" class="src-badge" data-target="src-01">[src-01]</a>]</a> · <a href="#page-src-05" class="wikilink" data-target="src-05">[<a href="#page-src-05" class="src-badge" data-target="src-05">[src-05]</a>]</a></li>
+</ul></section><section class="wiki-page" id="page-planning" data-id="planning"><div style="font-size:0.8rem;color:var(--muted);font-family:monospace;">PAGE ID: planning</div><h1>Planning（規劃：任務拆解與自我反思）</h1>
+<p>在 <a href="#page-src-02" class="wikilink" data-target="src-02">[[Lilian Weng (2023)]]</a> 的自主代理架構中，面對複雜的多步驟任務，<a href="#page-ai-agent" class="wikilink" data-target="ai-agent">[[AI Agent]]</a> 不能直接一步跳到答案，必須依賴 <strong>Planning（規劃）</strong> 組件，其核心包含兩大機制：<strong>Task Decomposition（任務拆解）</strong> 與 <strong>Self-Reflection（自我反思與修正）</strong>。<a href="#page-src-02" class="src-badge" data-target="src-02">[src-02]</a> <span class="anchor-tag" id="p-plan-1">^p-plan-1</span>
+<strong>Task Decomposition（任務拆解）</strong> 的目標是將大問題拆解成較小、可管理的子目標（subgoals）：常見方法包括 <strong>Chain of Thought (CoT，思考鏈)</strong> 要求模型「一步一步思考（think step by step）」；以及 <strong>Tree of Thoughts (ToT，思考樹)</strong> 在每一步產生多個候選思考分支，透過廣度優先（BFS）或深度優先（DFS）搜尋並評估最佳路徑。<a href="#page-src-02" class="src-badge" data-target="src-02">[src-02]</a> <span class="anchor-tag" id="p-plan-2">^p-plan-2</span>
+任務拆解也可以透過三種不同模式完成：(1) 直接由 LLM 以提示詞拆解；(2) 依賴任務專屬指令（例如寫作大綱步驟）；或 (3) 交給外部古典規劃器（如 LLM+P 將問題轉為 PDDL 規劃描述語言）。<a href="#page-src-02" class="src-badge" data-target="src-02">[src-02]</a> <span class="anchor-tag" id="p-plan-3">^p-plan-3</span>
+<strong>Self-Reflection（自我反思）</strong> 則讓 Agent 具備從過去失敗或環境回饋中學習與修正的能力：最核心的代表是 <strong><a href="#page-react" class="wikilink" data-target="react">[[ReAct（Thought → Action → Observation）]]</a></strong> 在每步動作後根據環境觀察調整計畫，以及 <strong>Reflexion</strong> 框架透過動態記憶與自我檢討文字回饋，在不更新模型權重的情況下改善下一輪決策。<a href="#page-src-02" class="src-badge" data-target="src-02">[src-02]</a><a href="#page-src-03" class="src-badge" data-target="src-03">[src-03]</a> <span class="anchor-tag" id="p-plan-4">^p-plan-4</span></p>
+<h2>相關頁面</h2>
+<ul>
+<li>互動迴圈：<a href="#page-react" class="wikilink" data-target="react">[[react]]</a> · <a href="#page-workflow-patterns" class="wikilink" data-target="workflow-patterns">[[workflow-patterns]]</a></li>
+<li>其他支柱：<a href="#page-ai-agent" class="wikilink" data-target="ai-agent">[[ai-agent]]</a> · <a href="#page-memory" class="wikilink" data-target="memory">[[memory]]</a> · <a href="#page-tool-use" class="wikilink" data-target="tool-use">[[tool-use]]</a></li>
+<li>原始文獻：<a href="#page-src-02" class="wikilink" data-target="src-02">[<a href="#page-src-02" class="src-badge" data-target="src-02">[src-02]</a>]</a> · <a href="#page-src-03" class="wikilink" data-target="src-03">[<a href="#page-src-03" class="src-badge" data-target="src-03">[src-03]</a>]</a> · <a href="#page-src-01" class="wikilink" data-target="src-01">[<a href="#page-src-01" class="src-badge" data-target="src-01">[src-01]</a>]</a></li>
+</ul></section><section class="wiki-page" id="page-react" data-id="react"><div style="font-size:0.8rem;color:var(--muted);font-family:monospace;">PAGE ID: react</div><h1>ReAct（Reasoning + Acting）：邊想邊做的核心迴圈</h1>
+<p>由 <a href="#page-src-03" class="wikilink" data-target="src-03">[[Yao et al. (2022)]]</a> 提出的 <strong>ReAct（Reasoning + Acting）</strong> 是現代 <a href="#page-ai-agent" class="wikilink" data-target="ai-agent">[[AI Agent]]</a> 最核心的執行迴圈典範，它讓語言模型以交錯（interleaved）的方式循環執行三個步驟：<strong>Thought（思考／推論）→ Action（呼叫工具或執行動作）→ Observation（從外部環境接收觀察結果）</strong>。<a href="#page-src-03" class="src-badge" data-target="src-03">[src-03]</a><a href="#page-src-05" class="src-badge" data-target="src-05">[src-05]</a> <span class="anchor-tag" id="p-react-1">^p-react-1</span>
+為什麼不能只用純 <strong>Chain-of-Thought (CoT，思考鏈)</strong>？<a href="#page-src-03" class="wikilink" data-target="src-03">[[ReAct 論文]]</a> 指出，純 CoT 屬於「封閉式內部推論」，模型只靠自身參數憑空想像步驟，沒有與外部真實世界接觸，因此一旦中途記錯事實就會產生 <strong>幻覺（Hallucination）</strong> 並將錯誤一路向下傳播（error propagation）；相反地，純 Acting 缺乏高階推論規劃，容易在複雜環境中迷失方向。<a href="#page-src-03" class="src-badge" data-target="src-03">[src-03]</a> <span class="anchor-tag" id="p-react-2">^p-react-2</span>
+在 ReAct 的每一個循環中：<strong>Thought（思考）</strong> 負責拆解目標、追蹤進度、分析上一步的結果並決定下一步計畫（見 <a href="#page-planning" class="wikilink" data-target="planning">[[planning]]</a>）；<strong>Action（行動）</strong> 負責呼叫外部 <a href="#page-tool-use" class="wikilink" data-target="tool-use">[[工具或 API]]</a>（例如 <code>Search[問題]</code> 或 <code>Lookup[關鍵字]</code>）；<strong>Observation（觀察）</strong> 則把外部工具回傳的真實資料寫入短期 <a href="#page-memory" class="wikilink" data-target="memory">[[上下文記憶]]</a>，讓下一輪的 Thought 有憑有據。<a href="#page-src-02" class="src-badge" data-target="src-02">[src-02]</a><a href="#page-src-03" class="src-badge" data-target="src-03">[src-03]</a> <span class="anchor-tag" id="p-react-3">^p-react-3</span>
+實驗證明，ReAct 在 HotPotQA 與 FEVER 等知識密集問答任務中透過查詢 Wikipedia API 顯著降低了幻覺；在 ALFWorld 家務互動與 WebShop 線上購物任務中，相比強化學習與模仿學習基準分別提升了 <strong>34%</strong> 與 <strong>10%</strong> 的絕對成功率，同時因為每一步都有明文 Thought 軌跡，人類工程師能輕易讀懂並除錯 Agent 的決策過程。<a href="#page-src-03" class="src-badge" data-target="src-03">[src-03]</a> <span class="anchor-tag" id="p-react-4">^p-react-4</span></p>
+<h2>相關頁面</h2>
+<ul>
+<li>核心組件：<a href="#page-ai-agent" class="wikilink" data-target="ai-agent">[[ai-agent]]</a> · <a href="#page-planning" class="wikilink" data-target="planning">[[planning]]</a> · <a href="#page-tool-use" class="wikilink" data-target="tool-use">[[tool-use]]</a> · <a href="#page-memory" class="wikilink" data-target="memory">[[memory]]</a></li>
+<li>架構比較：<a href="#page-workflow-vs-agent" class="wikilink" data-target="workflow-vs-agent">[[workflow-vs-agent]]</a> · <a href="#page-guardrails" class="wikilink" data-target="guardrails">[[guardrails]]</a></li>
+<li>原始文獻：<a href="#page-src-03" class="wikilink" data-target="src-03">[<a href="#page-src-03" class="src-badge" data-target="src-03">[src-03]</a>]</a> · <a href="#page-src-02" class="wikilink" data-target="src-02">[<a href="#page-src-02" class="src-badge" data-target="src-02">[src-02]</a>]</a> · <a href="#page-src-05" class="wikilink" data-target="src-05">[<a href="#page-src-05" class="src-badge" data-target="src-05">[src-05]</a>]</a></li>
+</ul></section><section class="wiki-page" id="page-src-01" data-id="src-01"><div style="font-size:0.8rem;color:var(--muted);font-family:monospace;">PAGE ID: src-01</div><h1><a href="#page-src-01" class="src-badge" data-target="src-01">[src-01]</a> Building Effective Agents (Anthropic)</h1>
+<ul>
+<li><strong>作者</strong>：Erik Schluntz, Barry Zhang (Anthropic)</li>
+<li><strong>發表日期</strong>：2024-12-19</li>
+<li><strong>原始檔案</strong>：<code>raw/src-01-anthropic-effective-agents.md</code></li>
+<li><strong>原文連結</strong>：https://www.anthropic.com/research/building-effective-agents</li>
+</ul>
+<h2>核心主張與知識摘錄</h2>
+<p>Anthropic 指出，在生產環境中最成功的實作往往不是用最複雜的框架，而是用簡單、可組合的模式（simple, composable patterns）來打造系統。<a href="#page-src-01" class="src-badge" data-target="src-01">[src-01]</a> <span class="anchor-tag" id="p-src01-1">^p-src01-1</span>
+廣義的「代理型系統（Agentic Systems）」在架構上必須區分為兩類：第一類是 <strong>Workflows（工作流）</strong>，透過預先定義好的程式碼路徑（predefined code paths）來編排 LLM 與工具；第二類是 <strong>Agents（自主代理）</strong>，由 LLM 自行動態指揮流程與工具使用方式，決定如何完成任務。<a href="#page-src-01" class="src-badge" data-target="src-01">[src-01]</a> <span class="anchor-tag" id="p-src01-2">^p-src01-2</span>
+所有代理系統的共同最小建構單元都是 <strong><a href="#page-augmented-llm" class="wikilink" data-target="augmented-llm">[[Augmented LLM（擴充型語言模型）]]</a></strong>，即在基礎 LLM 之上整合檢索（Retrieval）、工具（Tools）與記憶（Memory）三大擴充能力。<a href="#page-src-01" class="src-badge" data-target="src-01">[src-01]</a> <span class="anchor-tag" id="p-src01-3">^p-src01-3</span>
+Anthropic 歸納出五種高頻使用的 <a href="#page-workflow-patterns" class="wikilink" data-target="workflow-patterns">[[Workflow 設計模式]]</a>：(1) <strong>Prompt Chaining</strong>（將任務拆為固定序列步驟並在中間插入程式檢查門檻 Gate）；(2) <strong>Routing</strong>（將輸入分類並導向專門的下游提示或模型）；(3) <strong>Parallelization</strong>（包含切割子任務平行執行的 Sectioning，以及多次執行取共識的 Voting）；(4) <strong>Orchestrator-Workers</strong>（由中央協調模型動態拆解子任務分派給工兵模型）；(5) <strong>Evaluator-Optimizer</strong>（一個模型負責生成，另一個模型在迴圈中負責評估並給出修正回饋）。<a href="#page-src-01" class="src-badge" data-target="src-01">[src-01]</a> <span class="anchor-tag" id="p-src01-4">^p-src01-4</span>
+在決定 <a href="#page-when-to-use-agents" class="wikilink" data-target="when-to-use-agents">[[何時該使用 Agent]]</a> 時，Anthropic 建議永遠先尋找最簡單的解決方案（單次 LLM 呼叫搭配檢索與範例），只有在問題步驟無法預先預測、必須仰賴模型進行多輪開放式探索與決策時，才承擔自主 Agent 較高的延遲（latency）、成本（cost）與錯誤累積風險。<a href="#page-src-01" class="src-badge" data-target="src-01">[src-01]</a> <span class="anchor-tag" id="p-src01-5">^p-src01-5</span></p>
+<h2>關聯概念頁</h2>
+<ul>
+<li><a href="#page-ai-agent" class="wikilink" data-target="ai-agent">[[ai-agent]]</a> · <a href="#page-augmented-llm" class="wikilink" data-target="augmented-llm">[[augmented-llm]]</a> · <a href="#page-workflow-vs-agent" class="wikilink" data-target="workflow-vs-agent">[[workflow-vs-agent]]</a> · <a href="#page-workflow-patterns" class="wikilink" data-target="workflow-patterns">[[workflow-patterns]]</a> · <a href="#page-when-to-use-agents" class="wikilink" data-target="when-to-use-agents">[[when-to-use-agents]]</a> · <a href="#page-guardrails" class="wikilink" data-target="guardrails">[[guardrails]]</a></li>
+</ul></section><section class="wiki-page" id="page-src-02" data-id="src-02"><div style="font-size:0.8rem;color:var(--muted);font-family:monospace;">PAGE ID: src-02</div><h1><a href="#page-src-02" class="src-badge" data-target="src-02">[src-02]</a> LLM Powered Autonomous Agents (Lilian Weng)</h1>
+<ul>
+<li><strong>作者</strong>：Lilian Weng (OpenAI)</li>
+<li><strong>發表日期</strong>：2023-06-23</li>
+<li><strong>原始檔案</strong>：<code>raw/src-02-lilian-weng-autonomous-agents.md</code></li>
+<li><strong>原文連結</strong>：https://lilianweng.github.io/posts/2023-06-23-agent/</li>
+</ul>
+<h2>核心主張與知識摘錄</h2>
+<p>在以大型語言模型驅動的自主代理（Autonomous Agent）系統中，LLM 扮演系統的「核心大腦（Brain）」，並由三大關鍵組件互補支撐：<strong><a href="#page-planning" class="wikilink" data-target="planning">[[Planning（規劃）]]</a></strong>、<strong><a href="#page-memory" class="wikilink" data-target="memory">[[Memory（記憶）]]</a></strong> 與 <strong><a href="#page-tool-use" class="wikilink" data-target="tool-use">[[Tool Use（工具使用）]]</a></strong>。<a href="#page-src-02" class="src-badge" data-target="src-02">[src-02]</a> <span class="anchor-tag" id="p-src02-1">^p-src02-1</span>
+在 <strong><a href="#page-planning" class="wikilink" data-target="planning">[[Planning（規劃）]]</a></strong> 組件中，代理會先進行 <strong>子目標與任務拆解（Task Decomposition）</strong>，將複雜目標拆解成較小且可管理的子步驟（例如透過 Chain of Thought 逐步思考，或透過 Tree of Thoughts 在每個步驟展開多個思考分支並進行搜尋評估）；接著進行 <strong>自我批評與反思（Self-Reflection）</strong>，檢視過往行動紀錄與錯誤，動態修正後續計畫（代表作包括 <a href="#page-react" class="wikilink" data-target="react">[[ReAct]]</a> 與 Reflexion）。<a href="#page-src-02" class="src-badge" data-target="src-02">[src-02]</a> <span class="anchor-tag" id="p-src02-2">^p-src02-2</span>
+在 <strong><a href="#page-memory" class="wikilink" data-target="memory">[[Memory（記憶）]]</a></strong> 組件中，系統架構對應人類記憶分類：<strong>短期記憶（Short-term Memory）</strong> 對應模型的上下文學習（In-context Learning），受限於有限的 Context Window 長度；<strong>長期記憶（Long-term Memory）</strong> 則透過外部向量儲存庫（External Vector Store）搭配最大內積搜尋（MIPS / ANN 如 FAISS、HNSW），提供可跨對話持久保存並快速檢索的外部知識庫。<a href="#page-src-02" class="src-badge" data-target="src-02">[src-02]</a> <span class="anchor-tag" id="p-src02-3">^p-src02-3</span>
+在 <strong><a href="#page-tool-use" class="wikilink" data-target="tool-use">[[Tool Use（工具使用）]]</a></strong> 組件中，代理學會呼叫外部 API、計算機、程式碼直譯器、搜尋引擎與資料庫（如 MRKL、Toolformer、HuggingGPT 與 ChatGPT Plugins），藉此取得模型訓練權重凍結之後的即時資訊與精確運算能力。<a href="#page-src-02" class="src-badge" data-target="src-02">[src-02]</a> <span class="anchor-tag" id="p-src02-4">^p-src02-4</span>
+Lilian Weng 也總結了自主代理在實務上的三大限制：(1) 有限的上下文長度（Finite context length）限制了歷史紀錄與指令的塞入量；(2) 長程規劃與突發錯誤恢復（Long-term planning）對 LLM 仍然困難；(3) 以自然語言作為模型與外部組件之間的介面，偶爾會出現格式解析錯誤或不可靠輸出。<a href="#page-src-02" class="src-badge" data-target="src-02">[src-02]</a> <span class="anchor-tag" id="p-src02-5">^p-src02-5</span></p>
+<h2>關聯概念頁</h2>
+<ul>
+<li><a href="#page-ai-agent" class="wikilink" data-target="ai-agent">[[ai-agent]]</a> · <a href="#page-augmented-llm" class="wikilink" data-target="augmented-llm">[[augmented-llm]]</a> · <a href="#page-planning" class="wikilink" data-target="planning">[[planning]]</a> · <a href="#page-memory" class="wikilink" data-target="memory">[[memory]]</a> · <a href="#page-tool-use" class="wikilink" data-target="tool-use">[[tool-use]]</a> · <a href="#page-react" class="wikilink" data-target="react">[[react]]</a></li>
+</ul></section><section class="wiki-page" id="page-src-03" data-id="src-03"><div style="font-size:0.8rem;color:var(--muted);font-family:monospace;">PAGE ID: src-03</div><h1><a href="#page-src-03" class="src-badge" data-target="src-03">[src-03]</a> ReAct: Synergizing Reasoning and Acting in Language Models</h1>
+<ul>
+<li><strong>作者</strong>：Shunyu Yao, Jeffrey Zhao, Dian Yu, Nan Du, Izhak Shafran, Karthik Narasimhan, Yuan Cao (Princeton University &amp; Google Research)</li>
+<li><strong>發表日期</strong>：2022-10-06 (ICLR 2023)</li>
+<li><strong>原始檔案</strong>：<code>raw/src-03-react-synergizing-reasoning-acting.md</code></li>
+<li><strong>原文連結</strong>：https://arxiv.org/abs/2210.03629</li>
+</ul>
+<h2>核心主張與知識摘錄</h2>
+<p>過去的研究將語言模型的「推論（Reasoning，例如 Chain-of-Thought 思考鏈）」與「行動（Acting，例如產生動作指令）」視為兩個獨立主題。純 CoT 僅仰賴模型內部參數進行封閉推論，無法與外部世界互動，因此在多步推論中容易產生事實幻覺（hallucination）與錯誤傳播（error propagation）。<a href="#page-src-03" class="src-badge" data-target="src-03">[src-03]</a> <span class="anchor-tag" id="p-src03-1">^p-src03-1</span>
+<strong><a href="#page-react" class="wikilink" data-target="react">[[ReAct（Reasoning + Acting）]]</a></strong> 讓大型語言模型以交錯（interleaved）的方式同時產生 <strong>推論軌跡（Thought）</strong> 與 <strong>任務特定動作（Action）</strong>，接著從外部環境或工具接收 <strong>觀察結果（Observation）</strong>，形成 <code>Thought → Action → Observation</code> 的閉環迴圈。<a href="#page-src-03" class="src-badge" data-target="src-03">[src-03]</a> <span class="anchor-tag" id="p-src03-2">^p-src03-2</span>
+在這個迴圈中，<strong>推論軌跡（Thought）</strong> 幫助模型誘導、追蹤並更新行動計畫（induce, track, and update action plans）以及處理例外狀況；而 <strong>動作（Action）</strong> 則讓模型能主動查詢外部知識源（如 Wikipedia API）或操作環境，將外部真實資訊帶回上下文視窗中。<a href="#page-src-03" class="src-badge" data-target="src-03">[src-03]</a> <span class="anchor-tag" id="p-src03-3">^p-src03-3</span>
+在實驗驗證中，ReAct 在知識密集推論基準（HotPotQA 多跳問答、FEVER 事實查核）上透過與簡單 Wikipedia API 互動，有效克服了純 CoT 的幻覺問題；在互動決策基準（ALFWorld 文字遊戲與 WebShop 線上購物環境）上，僅用 1 到 2 個上下文範例就顯著超越模仿學習與強化學習方法，在 ALFWorld 與 WebShop 分別取得 34% 與 10% 的絕對成功率提升，且具備極高的人類可解釋性與可除錯性。<a href="#page-src-03" class="src-badge" data-target="src-03">[src-03]</a> <span class="anchor-tag" id="p-src03-4">^p-src03-4</span></p>
+<h2>關聯概念頁</h2>
+<ul>
+<li><a href="#page-react" class="wikilink" data-target="react">[[react]]</a> · <a href="#page-planning" class="wikilink" data-target="planning">[[planning]]</a> · <a href="#page-tool-use" class="wikilink" data-target="tool-use">[[tool-use]]</a> · <a href="#page-ai-agent" class="wikilink" data-target="ai-agent">[[ai-agent]]</a></li>
+</ul></section><section class="wiki-page" id="page-src-04" data-id="src-04"><div style="font-size:0.8rem;color:var(--muted);font-family:monospace;">PAGE ID: src-04</div><h1><a href="#page-src-04" class="src-badge" data-target="src-04">[src-04]</a> A Practical Guide to Building Agents (OpenAI)</h1>
+<ul>
+<li><strong>作者</strong>：OpenAI</li>
+<li><strong>發表日期</strong>：2025-04</li>
+<li><strong>原始檔案</strong>：<code>raw/src-04-openai-practical-guide-building-agents.md</code></li>
+<li><strong>原文連結</strong>：https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf</li>
+</ul>
+<h2>核心主張與知識摘錄</h2>
+<p>OpenAI 將 <a href="#page-ai-agent" class="wikilink" data-target="ai-agent">[[Agent（代理）]]</a> 定義為能代表使用者獨立完成多步驟工作流的系統，其底層由三個基礎要素組成：(1) <strong>Model</strong>（負責推論與決策的語言模型）；(2) <strong>Tools</strong>（讓代理與外部系統互動的外部函數或 API）；(3) <strong>Instructions</strong>（明確規範代理行為、步驟與邊界的指引與安全規範）。<a href="#page-src-04" class="src-badge" data-target="src-04">[src-04]</a> <span class="anchor-tag" id="p-src04-1">^p-src04-1</span>
+關於 <a href="#page-when-to-use-agents" class="wikilink" data-target="when-to-use-agents">[[何時該打造 Agent]]</a>，OpenAI 提出三個高價值應用場景判準：(1) <strong>Complex decision-making</strong>（需要細膩判斷、例外處理與情境敏感度的複雜決策，例如客服退費審核）；(2) <strong>Difficult-to-maintain rules</strong>（傳統 if-else 規則引擎變得過於龐大脆弱、難以維護的系統，例如廠商資安審查）；(3) <strong>Heavy reliance on unstructured data</strong>（需要理解自然語言文件、對話或非結構化資料的工作，例如保險理賠審理）。<a href="#page-src-04" class="src-badge" data-target="src-04">[src-04]</a> <span class="anchor-tag" id="p-src04-2">^p-src04-2</span>
+在 <a href="#page-tool-use" class="wikilink" data-target="tool-use">[[工具設計]]</a> 上，OpenAI 將代理所需的工具歸為三大類：<strong>Data tools</strong>（查詢資料庫、讀取 PDF、網頁搜尋或 RAG 檢索以取得背景資訊）、<strong>Action tools</strong>（寄送 Email、更新 CRM 紀錄、呼叫外部服務執行變更動作）、以及 <strong>Orchestration tools</strong>（把其他專門的 Agent 當作工具來呼叫）。<a href="#page-src-04" class="src-badge" data-target="src-04">[src-04]</a> <span class="anchor-tag" id="p-src04-3">^p-src04-3</span>
+在系統拓樸上，OpenAI 建議先最大化單一代理（Single-agent system）的能力，當指令過於複雜或工具過多導致容易選錯時，再拆分為 <strong><a href="#page-multi-agent" class="wikilink" data-target="multi-agent">[[多代理系統（Multi-agent system）]]</a></strong>。多代理有兩種主要設計模式：<strong>Manager pattern（經理模式）</strong> 由一個中央 Manager 代理透過工具呼叫指揮多個專職子代理並保有對話控制權；<strong>Decentralized pattern（去中心化模式）</strong> 則是多個平輩代理透過 <strong>Handoff（單向移交）</strong> 將執行與對話控制權直接交棒給最適合的專職代理。<a href="#page-src-04" class="src-badge" data-target="src-04">[src-04]</a> <span class="anchor-tag" id="p-src04-4">^p-src04-4</span>
+在安全性上，OpenAI 強調 <strong><a href="#page-guardrails" class="wikilink" data-target="guardrails">[[Guardrails（安全護欄）]]</a></strong> 必須採取多層防禦機制（layered defense），不可只靠單一防護：結合相關性分類器（Relevance classifier）、安全分類器（越獄與 Prompt Injection 偵測）、PII 個資過濾器、輸出驗證、工具風險分級（低／中／高風險，如退費或刪除資料），並在觸發高風險動作或超過失敗次數門檻時強制啟動 <strong>Human-in-the-loop（人類介入審核）</strong>。<a href="#page-src-04" class="src-badge" data-target="src-04">[src-04]</a> <span class="anchor-tag" id="p-src04-5">^p-src04-5</span></p>
+<h2>關聯概念頁</h2>
+<ul>
+<li><a href="#page-ai-agent" class="wikilink" data-target="ai-agent">[[ai-agent]]</a> · <a href="#page-when-to-use-agents" class="wikilink" data-target="when-to-use-agents">[[when-to-use-agents]]</a> · <a href="#page-tool-use" class="wikilink" data-target="tool-use">[[tool-use]]</a> · <a href="#page-multi-agent" class="wikilink" data-target="multi-agent">[[multi-agent]]</a> · <a href="#page-guardrails" class="wikilink" data-target="guardrails">[[guardrails]]</a> · <a href="#page-workflow-vs-agent" class="wikilink" data-target="workflow-vs-agent">[[workflow-vs-agent]]</a></li>
+</ul></section><section class="wiki-page" id="page-src-05" data-id="src-05"><div style="font-size:0.8rem;color:var(--muted);font-family:monospace;">PAGE ID: src-05</div><h1><a href="#page-src-05" class="src-badge" data-target="src-05">[src-05]</a> Hugging Face Agents Course — Unit 1: What are Agents?</h1>
+<ul>
+<li><strong>作者</strong>：Hugging Face Team</li>
+<li><strong>發表日期</strong>：2025-02-10</li>
+<li><strong>原始檔案</strong>：<code>raw/src-05-hf-agents-course-what-are-agents.md</code></li>
+<li><strong>原文連結</strong>：https://huggingface.co/learn/agents-course/unit1/what-are-agents</li>
+</ul>
+<h2>核心主張與知識摘錄</h2>
+<p>Hugging Face 對初學者給出的清晰定義是：<strong><a href="#page-ai-agent" class="wikilink" data-target="ai-agent">[[AI Agent]]</a> 是一個利用 AI 模型與其環境互動，以完成使用者所定義目標的系統</strong>；它結合了推論、規劃與執行動作（通常透過外部工具）的能力。<a href="#page-src-05" class="src-badge" data-target="src-05">[src-05]</a> <span class="anchor-tag" id="p-src05-1">^p-src05-1</span>
+可以用人體結構將 Agent 拆解成兩個核心部位：第一部分是 <strong>Brain（大腦 ＝ AI 模型）</strong>，負責所有思考、推論與規劃，決定下一步該採取哪些行動；第二部分是 <strong>Body（身體 ＝ 工具與能力 Tools &amp; Capabilities）</strong>，代表代理被賦予的所有外部工具，定義了代理能夠在環境中實際做出哪些動作（例如發送郵件、搜尋網頁、查詢天氣或生成圖片）。<a href="#page-src-05" class="src-badge" data-target="src-05">[src-05]</a> <span class="anchor-tag" id="p-src05-2">^p-src05-2</span>
+根據 <a href="#page-workflow-vs-agent" class="wikilink" data-target="workflow-vs-agent">[[自主性光譜（Spectrum of Agency）]]</a>，代理性並不是非 0 即 1 的二元概念，而是一條連續的光譜：從最左端完全沒有代理性的單純模型輸出（0 星），到決定分支走向的路由（1 星）、決定呼叫哪些函數並可多步迴圈的工具呼叫與代理工作流（2 星），直到最右端能由一個代理再觸發其他子代理工作流的完全高自主系統（3 星）。<a href="#page-src-05" class="src-badge" data-target="src-05">[src-05]</a> <span class="anchor-tag" id="p-src05-3">^p-src05-3</span>
+Agent 透過不斷循環的感知與行動迴圈（Perception-Action Cycle，常以 <a href="#page-react" class="wikilink" data-target="react">[[Thought → Action → Observation]]</a> 實作）在自然語言理解與真實世界執行之間搭起橋樑，讓使用者只需用自然語言下達高階目標（例如「幫我查今天行程並寄信告訴主管我下午請假」），代理就能自行規劃步驟並呼叫對應工具完成任務。<a href="#page-src-05" class="src-badge" data-target="src-05">[src-05]</a> <span class="anchor-tag" id="p-src05-4">^p-src05-4</span></p>
+<h2>關聯概念頁</h2>
+<ul>
+<li><a href="#page-ai-agent" class="wikilink" data-target="ai-agent">[[ai-agent]]</a> · <a href="#page-workflow-vs-agent" class="wikilink" data-target="workflow-vs-agent">[[workflow-vs-agent]]</a> · <a href="#page-tool-use" class="wikilink" data-target="tool-use">[[tool-use]]</a> · <a href="#page-react" class="wikilink" data-target="react">[[react]]</a></li>
+</ul></section><section class="wiki-page" id="page-src-06" data-id="src-06"><div style="font-size:0.8rem;color:var(--muted);font-family:monospace;">PAGE ID: src-06</div><h1><a href="#page-src-06" class="src-badge" data-target="src-06">[src-06]</a> Model Context Protocol (MCP) — Introduction</h1>
+<ul>
+<li><strong>作者</strong>：Anthropic / Model Context Protocol Open Source Project</li>
+<li><strong>發表日期</strong>：2024-11-25</li>
+<li><strong>原始檔案</strong>：<code>raw/src-06-model-context-protocol-intro.md</code></li>
+<li><strong>原文連結</strong>：https://modelcontextprotocol.io/introduction</li>
+</ul>
+<h2>核心主張與知識摘錄</h2>
+<p><strong><a href="#page-mcp" class="wikilink" data-target="mcp">[[Model Context Protocol (MCP)]]</a></strong> 是一套開放標準協議（open protocol），用來標準化應用程式如何向大型語言模型（LLM）提供上下文（context）與工具連線。<a href="#page-src-06" class="src-badge" data-target="src-06">[src-06]</a> <span class="anchor-tag" id="p-src06-1">^p-src06-1</span>
+官方以 <strong>「AI 應用程式的 USB-C 連接埠」</strong> 來比喻 MCP：就像 USB-C 提供了一種標準化的實體介面讓電腦連接各種外接周邊與電源，MCP 也提供了標準化方式，讓 AI 模型與 Agent 連接不同的資料來源（Data Sources）與外部工具（Tools），解決過去每個模型與每個工具都必須各自撰寫客製整合的 $N \times M$ 碎片化問題。<a href="#page-src-06" class="src-badge" data-target="src-06">[src-06]</a> <span class="anchor-tag" id="p-src06-2">^p-src06-2</span>
+MCP 採用清晰的 <strong>Client-Server 三層架構</strong>：(1) <strong>MCP Hosts</strong> 是發起連線的 AI 應用程式（如 Claude Desktop、AI IDE 或各類 Agent 執行環境）；(2) <strong>MCP Clients</strong> 位於 Host 內部，負責與單一 Server 維持 1:1 的協議連線；(3) <strong>MCP Servers</strong> 是輕量級程式，透過標準化的 MCP 協議暴露特定能力（Tools、Resources、Prompts），並安全存取本地資料源（Local Data Sources，如本機檔案、資料庫）或遠端服務（Remote Services，如 Slack、GitHub 等 Web API）。<a href="#page-src-06" class="src-badge" data-target="src-06">[src-06]</a> <span class="anchor-tag" id="p-src06-3">^p-src06-3</span>
+對 <a href="#page-tool-use" class="wikilink" data-target="tool-use">[[Tool Use]]</a> 與 <a href="#page-augmented-llm" class="wikilink" data-target="augmented-llm">[[Augmented LLM]]</a> 而言，MCP 讓開發者能使用現成的預建整合（pre-built integrations），並在不同 LLM 供應商之間自由切換，同時將敏感憑證與資料存取權控制在自己的基礎設施與安全邊界之內。<a href="#page-src-06" class="src-badge" data-target="src-06">[src-06]</a> <span class="anchor-tag" id="p-src06-4">^p-src06-4</span></p>
+<h2>關聯概念頁</h2>
+<ul>
+<li><a href="#page-mcp" class="wikilink" data-target="mcp">[[mcp]]</a> · <a href="#page-tool-use" class="wikilink" data-target="tool-use">[[tool-use]]</a> · <a href="#page-augmented-llm" class="wikilink" data-target="augmented-llm">[[augmented-llm]]</a> · <a href="#page-guardrails" class="wikilink" data-target="guardrails">[[guardrails]]</a></li>
+</ul></section><section class="wiki-page" id="page-tool-use" data-id="tool-use"><div style="font-size:0.8rem;color:var(--muted);font-family:monospace;">PAGE ID: tool-use</div><h1>Tool Use（工具使用）</h1>
+<p>大型語言模型本身的參數權重在預訓練完成後即凍結，既不知道即時新聞或企業內部私有資料，也不擅長精確算術或直接操作外部軟體；<strong>Tool Use（工具使用）</strong> 正是為 <a href="#page-ai-agent" class="wikilink" data-target="ai-agent">[[AI Agent]]</a> 裝上「感官與雙手（Body）」，讓模型能夠主動查詢外部世界並執行實際動作。<a href="#page-src-02" class="src-badge" data-target="src-02">[src-02]</a><a href="#page-src-05" class="src-badge" data-target="src-05">[src-05]</a> <span class="anchor-tag" id="p-tool-1">^p-tool-1</span>
+根據 <a href="#page-src-04" class="wikilink" data-target="src-04">[[OpenAI《A Practical Guide to Building Agents》]]</a>，實務上為 Agent 配置的工具可清楚分為三大類型：(1) <strong>Data tools（資料型工具）</strong>，負責讀取與檢索上下文資訊，如查詢 SQL 資料庫、讀取 PDF、RAG 知識庫檢索或網頁搜尋；(2) <strong>Action tools（動作型工具）</strong>，負責與外部系統互動並改變狀態，如發送 Email、建立行事曆事件、更新 CRM 紀錄或執行退費；(3) <strong>Orchestration tools（編排型工具）</strong>，把另一個專職的 <a href="#page-multi-agent" class="wikilink" data-target="multi-agent">[[子代理（Sub-agent）]]</a> 當作工具來呼叫。<a href="#page-src-04" class="src-badge" data-target="src-04">[src-04]</a> <span class="anchor-tag" id="p-tool-2">^p-tool-2</span>
+在學術與工業演進上，<a href="#page-src-02" class="wikilink" data-target="src-02">[[Lilian Weng (2023)]]</a> 整理了從 MRKL 模組化路由、Toolformer 自監督學習 API 呼叫，到 HuggingGPT 以 LLM 當控制器調度多個專門模型的發展脈絡。<a href="#page-src-02" class="src-badge" data-target="src-02">[src-02]</a> <span class="anchor-tag" id="p-tool-3">^p-tool-3</span>
+<a href="#page-src-01" class="wikilink" data-target="src-01">[[Anthropic (2024)]]</a> 特別提醒工程師：<strong>花在設計工具介面（Agent-Computer Interface, ACI）的心力應該與設計人類 UI 一樣多</strong>——要為每個工具撰寫極度清楚的參數說明、邊界條件與範例，進行防呆設計（poka-yoke），並可透過 <a href="#page-mcp" class="wikilink" data-target="mcp">[[Model Context Protocol (MCP)]]</a> 標準化工具連接與透過 <a href="#page-guardrails" class="wikilink" data-target="guardrails">[[Guardrails]]</a> 對高風險動作工具進行權限控管。<a href="#page-src-01" class="src-badge" data-target="src-01">[src-01]</a><a href="#page-src-04" class="src-badge" data-target="src-04">[src-04]</a><a href="#page-src-06" class="src-badge" data-target="src-06">[src-06]</a> <span class="anchor-tag" id="p-tool-4">^p-tool-4</span></p>
+<h2>相關頁面</h2>
+<ul>
+<li>核心概念：<a href="#page-ai-agent" class="wikilink" data-target="ai-agent">[[ai-agent]]</a> · <a href="#page-augmented-llm" class="wikilink" data-target="augmented-llm">[[augmented-llm]]</a> · <a href="#page-react" class="wikilink" data-target="react">[[react]]</a> · <a href="#page-mcp" class="wikilink" data-target="mcp">[[mcp]]</a></li>
+<li>安全與多代理：<a href="#page-guardrails" class="wikilink" data-target="guardrails">[[guardrails]]</a> · <a href="#page-multi-agent" class="wikilink" data-target="multi-agent">[[multi-agent]]</a></li>
+<li>原始文獻：<a href="#page-src-01" class="wikilink" data-target="src-01">[<a href="#page-src-01" class="src-badge" data-target="src-01">[src-01]</a>]</a> · <a href="#page-src-02" class="wikilink" data-target="src-02">[<a href="#page-src-02" class="src-badge" data-target="src-02">[src-02]</a>]</a> · <a href="#page-src-04" class="wikilink" data-target="src-04">[<a href="#page-src-04" class="src-badge" data-target="src-04">[src-04]</a>]</a> · <a href="#page-src-05" class="wikilink" data-target="src-05">[<a href="#page-src-05" class="src-badge" data-target="src-05">[src-05]</a>]</a> · <a href="#page-src-06" class="wikilink" data-target="src-06">[<a href="#page-src-06" class="src-badge" data-target="src-06">[src-06]</a>]</a></li>
+</ul></section><section class="wiki-page" id="page-when-to-use-agents" data-id="when-to-use-agents"><div style="font-size:0.8rem;color:var(--muted);font-family:monospace;">PAGE ID: when-to-use-agents</div><h1>When to Use Agents（何時該用與不該用 AI Agent）</h1>
+<p>面對新問題時，並非所有任務都適合做成自主 <a href="#page-ai-agent" class="wikilink" data-target="ai-agent">[[AI Agent]]</a>。<a href="#page-src-01" class="wikilink" data-target="src-01">[[Anthropic (2024)]]</a> 強調：<strong>應該尋找最簡單的解決方案，只有在確實需要時才增加系統複雜度</strong>——許多時候，單次 LLM 呼叫搭配檢索（RAG）或確定性的 <a href="#page-workflow-patterns" class="wikilink" data-target="workflow-patterns">[[Workflow]]</a> 就已經足夠，因為自主 Agent 是以較高的延遲（latency）與 Token 成本（cost）來換取任務表現。<a href="#page-src-01" class="src-badge" data-target="src-01">[src-01]</a> <span class="anchor-tag" id="p-wtu-1">^p-wtu-1</span>
+那麼什麼時候才真正值得導入 Agent？<a href="#page-src-04" class="wikilink" data-target="src-04">[[OpenAI (2025)]]</a> 提出三個最具鑑別力的適用判準：(1) <strong>複雜決策（Complex decision-making）</strong>——工作流程包含細微的情境判斷、多重例外處理，難以寫成死板規則（例如綜合考量購買紀錄與原因的客服退費審核）；(2) <strong>難以維護的規則集（Difficult-to-maintain rules）</strong>——既有系統充斥數百條糾纏的 <code>if-else</code> 規則，每次新增條件都容易改壞舊邏輯（例如供應商資安合規審查）；(3) <strong>高度依賴非結構化資料（Heavy reliance on unstructured data）</strong>——任務必須理解自然語言對話、PDF 合約或圖片內容才能推進（例如保險理賠審核）。<a href="#page-src-04" class="src-badge" data-target="src-04">[src-04]</a> <span class="anchor-tag" id="p-wtu-2">^p-wtu-2</span>
+相對地，如果一個任務的<strong>每一個步驟都可以事先固定寫清楚</strong>、輸入資料高度結構化，或者應用場景對回應延遲極度敏感且完全零容錯，<a href="#page-src-01" class="wikilink" data-target="src-01">[[Anthropic]]</a> 與 <a href="#page-src-04" class="wikilink" data-target="src-04">[[OpenAI]]</a> 都建議直接採用確定性的程式碼或 <a href="#page-workflow-vs-agent" class="wikilink" data-target="workflow-vs-agent">[[Workflow]]</a>，而不要強行套用開放式的自主 Agent；若確定採用 Agent，則必須搭配完善的 <a href="#page-guardrails" class="wikilink" data-target="guardrails">[[Guardrails 安全護欄]]</a> 與沙盒測試環境。<a href="#page-src-01" class="src-badge" data-target="src-01">[src-01]</a><a href="#page-src-04" class="src-badge" data-target="src-04">[src-04]</a> <span class="anchor-tag" id="p-wtu-3">^p-wtu-3</span></p>
+<h2>相關頁面</h2>
+<ul>
+<li>架構選型：<a href="#page-workflow-vs-agent" class="wikilink" data-target="workflow-vs-agent">[[workflow-vs-agent]]</a> · <a href="#page-workflow-patterns" class="wikilink" data-target="workflow-patterns">[[workflow-patterns]]</a> · <a href="#page-multi-agent" class="wikilink" data-target="multi-agent">[[multi-agent]]</a></li>
+<li>安全防護：<a href="#page-guardrails" class="wikilink" data-target="guardrails">[[guardrails]]</a> · <a href="#page-ai-agent" class="wikilink" data-target="ai-agent">[[ai-agent]]</a></li>
+<li>原始文獻：<a href="#page-src-01" class="wikilink" data-target="src-01">[<a href="#page-src-01" class="src-badge" data-target="src-01">[src-01]</a>]</a> · <a href="#page-src-04" class="wikilink" data-target="src-04">[<a href="#page-src-04" class="src-badge" data-target="src-04">[src-04]</a>]</a></li>
+</ul></section><section class="wiki-page" id="page-workflow-patterns" data-id="workflow-patterns"><div style="font-size:0.8rem;color:var(--muted);font-family:monospace;">PAGE ID: workflow-patterns</div><h1>5 種常見 Workflow 設計模式</h1>
+<p>在打造代理型系統時，<a href="#page-src-01" class="wikilink" data-target="src-01">[[Anthropic (2024)]]</a> 總結出五種以 <a href="#page-augmented-llm" class="wikilink" data-target="augmented-llm">[[Augmented LLM]]</a> 為積木、最常在生產環境使用的可組合 <a href="#page-workflow-vs-agent" class="wikilink" data-target="workflow-vs-agent">[[Workflow]]</a> 設計模式（Composable Patterns）。<a href="#page-src-01" class="src-badge" data-target="src-01">[src-01]</a> <span class="anchor-tag" id="p-wf-1">^p-wf-1</span>
+模式一 <strong>Prompt Chaining（提示串接）</strong>：將一個任務拆成固定順序的多個步驟，前一步 LLM 的輸出成為下一步 LLM 的輸入，並且可以在任兩步中間插入程式化的檢查門檻（Programmatic Gate）以驗證格式或品質（例如先產生行銷文案大綱 → 檢查是否合規 → 撰寫正式文案 → 翻譯成多國語言）。<a href="#page-src-01" class="src-badge" data-target="src-01">[src-01]</a> <span class="anchor-tag" id="p-wf-2">^p-wf-2</span>
+模式二 <strong>Routing（路由分流）</strong>：先由一個分類器或輕量 LLM 判斷輸入屬於哪一種類型，再將其分發給專門為該類型最佳化的下游提示詞、工具或不同尺寸的模型（例如把一般常見客服問題導向快速的 Haiku/Flash 模型，把複雜技術問題或退費申請導向推理模型或專門流程）。<a href="#page-src-01" class="src-badge" data-target="src-01">[src-01]</a> <span class="anchor-tag" id="p-wf-3">^p-wf-3</span>
+模式三 <strong>Parallelization（平行化）</strong>：同時啟動多個 LLM 呼叫再以程式彙整結果，包含兩種變體——<strong>Sectioning（切分）</strong> 將任務切成獨立子任務平行處理（例如一個模型負責產生回答，另一個模型同時做 <a href="#page-guardrails" class="wikilink" data-target="guardrails">[[安全護欄審查]]</a>），以及 <strong>Voting（投票）</strong> 對同一問題跑多次推論再取多數決以提升準確率（例如程式碼安全漏洞掃描）。<a href="#page-src-01" class="src-badge" data-target="src-01">[src-01]</a> <span class="anchor-tag" id="p-wf-4">^p-wf-4</span>
+模式四 <strong>Orchestrator-Workers（協調者－工兵模式）</strong>：當所需的子任務無法事先寫死時（例如跨多個檔案修改程式碼或進行多源深入研究），由一個中央 <strong>Orchestrator（協調者 LLM）</strong> 根據輸入動態拆解子任務並分派給多個 <strong>Workers（工兵 LLM）</strong>，最後再由協調者彙整所有工兵的輸出。<a href="#page-src-01" class="src-badge" data-target="src-01">[src-01]</a> <span class="anchor-tag" id="p-wf-5">^p-wf-5</span>
+模式五 <strong>Evaluator-Optimizer（評估者－優化者迴圈）</strong>：由一個 <strong>Generator LLM</strong> 產生初稿，交給另一個 <strong>Evaluator LLM</strong> 依據明確標準進行評分與具體修改建議，若未達標則進入迴圈重新修正（這正是本作業建立 LLM Wiki 並透過 C2～C6 檢查節點反覆局部重新生成教學簡報所採用的核心模式）。<a href="#page-src-01" class="src-badge" data-target="src-01">[src-01]</a> <span class="anchor-tag" id="p-wf-6">^p-wf-6</span></p>
+<h2>相關頁面</h2>
+<ul>
+<li>架構基礎：<a href="#page-augmented-llm" class="wikilink" data-target="augmented-llm">[[augmented-llm]]</a> · <a href="#page-workflow-vs-agent" class="wikilink" data-target="workflow-vs-agent">[[workflow-vs-agent]]</a> · <a href="#page-when-to-use-agents" class="wikilink" data-target="when-to-use-agents">[[when-to-use-agents]]</a></li>
+<li>延伸模式：<a href="#page-multi-agent" class="wikilink" data-target="multi-agent">[[multi-agent]]</a> · <a href="#page-guardrails" class="wikilink" data-target="guardrails">[[guardrails]]</a></li>
+<li>原始文獻：<a href="#page-src-01" class="wikilink" data-target="src-01">[<a href="#page-src-01" class="src-badge" data-target="src-01">[src-01]</a>]</a></li>
+</ul></section><section class="wiki-page" id="page-workflow-vs-agent" data-id="workflow-vs-agent"><div style="font-size:0.8rem;color:var(--muted);font-family:monospace;">PAGE ID: workflow-vs-agent</div><h1>Workflow vs Agent（工作流 vs 自主代理）</h1>
+<p><a href="#page-src-01" class="wikilink" data-target="src-01">[[Anthropic《Building Effective Agents》]]</a> 對「Agentic Systems（廣義代理系統）」做出了業界最重要的架構區分，將其分為 <strong>Workflows（工作流）</strong> 與 <strong>Agents（自主代理）</strong> 兩大類。<a href="#page-src-01" class="src-badge" data-target="src-01">[src-01]</a> <span class="anchor-tag" id="p-wva-1">^p-wva-1</span>
+<strong>Workflows（工作流）</strong> 是指「透過預先寫好的程式碼路徑（predefined code paths）來編排 LLM 與外部工具」的系統；步驟順序、分支條件與檢查點都由工程師在程式碼中固定，具備高度可預測性與穩定性，適合步驟清楚、結構固定的任務（參見 <a href="#page-workflow-patterns" class="wikilink" data-target="workflow-patterns">[[workflow-patterns]]</a>）。<a href="#page-src-01" class="src-badge" data-target="src-01">[src-01]</a> <span class="anchor-tag" id="p-wva-2">^p-wva-2</span>
+<strong>Agents（自主代理）</strong> 則是指「由 LLM 自己動態決定流程（dynamically direct their own processes）與工具使用方式」的系統；模型會根據每一步環境回傳的觀察結果（如 <a href="#page-react" class="wikilink" data-target="react">[[ReAct 迴圈]]</a>），自主決定要執行幾輪迴圈、下一步呼叫哪個 <a href="#page-tool-use" class="wikilink" data-target="tool-use">[[工具]]</a>、以及何時判定任務完成或請求人類介入。<a href="#page-src-01" class="src-badge" data-target="src-01">[src-01]</a><a href="#page-src-04" class="src-badge" data-target="src-04">[src-04]</a> <span class="anchor-tag" id="p-wva-3">^p-wva-3</span>
+<a href="#page-src-05" class="wikilink" data-target="src-05">[[Hugging Face Agents Course]]</a> 進一步以 <strong>自主性光譜（Spectrum of Agency）</strong> 統合這兩者：代理性不是非黑即白，而是從 Level 0（單純模型輸出，無自主性）、Level 1（Routing 路由決定分支）、Level 2（確定性或半自主的多步 <a href="#page-workflow-patterns" class="wikilink" data-target="workflow-patterns">[[Workflow]]</a> 與工具迴圈），一路延伸到 Level 3（模型完全掌控控制流、甚至觸發其他 <a href="#page-multi-agent" class="wikilink" data-target="multi-agent">[[子代理]]</a> 的自主 Agent）。<a href="#page-src-01" class="src-badge" data-target="src-01">[src-01]</a><a href="#page-src-05" class="src-badge" data-target="src-05">[src-05]</a> <span class="anchor-tag" id="p-wva-4">^p-wva-4</span></p>
+<h2>相關頁面</h2>
+<ul>
+<li>設計模式：<a href="#page-workflow-patterns" class="wikilink" data-target="workflow-patterns">[[workflow-patterns]]</a> · <a href="#page-react" class="wikilink" data-target="react">[[react]]</a> · <a href="#page-multi-agent" class="wikilink" data-target="multi-agent">[[multi-agent]]</a></li>
+<li>選型與安全：<a href="#page-when-to-use-agents" class="wikilink" data-target="when-to-use-agents">[[when-to-use-agents]]</a> · <a href="#page-guardrails" class="wikilink" data-target="guardrails">[[guardrails]]</a> · <a href="#page-ai-agent" class="wikilink" data-target="ai-agent">[[ai-agent]]</a></li>
+<li>原始文獻：<a href="#page-src-01" class="wikilink" data-target="src-01">[<a href="#page-src-01" class="src-badge" data-target="src-01">[src-01]</a>]</a> · <a href="#page-src-05" class="wikilink" data-target="src-05">[<a href="#page-src-05" class="src-badge" data-target="src-05">[src-05]</a>]</a> · <a href="#page-src-04" class="wikilink" data-target="src-04">[<a href="#page-src-04" class="src-badge" data-target="src-04">[src-04]</a>]</a></li>
+</ul></section>
+  </main>
+  <script>
+    (function() {
+      const pages = Array.from(document.querySelectorAll('.wiki-page'));
+      const navBtns = Array.from(document.querySelectorAll('.nav-btn'));
+      const searchInput = document.getElementById('searchInput');
+
+      function openPage(id) {
+        let target = pages.find(p => p.getAttribute('data-id') === id);
+        if (!target && pages.length) target = pages[0];
+        if (!target) return;
+        const activeId = target.getAttribute('data-id');
+        pages.forEach(p => p.classList.toggle('active', p === target));
+        navBtns.forEach(b => b.classList.toggle('active', b.getAttribute('data-page') === activeId));
+      }
+
+      navBtns.forEach(btn => {
+        btn.addEventListener('click', () => openPage(btn.getAttribute('data-page')));
+      });
+
+      document.body.addEventListener('click', (e) => {
+        const link = e.target.closest('[data-target]');
+        if (link) {
+          e.preventDefault();
+          openPage(link.getAttribute('data-target'));
+        }
+      });
+
+      searchInput.addEventListener('input', () => {
+        const q = searchInput.value.trim().toLowerCase();
+        navBtns.forEach(btn => {
+          const pid = btn.getAttribute('data-page');
+          const sec = document.getElementById('page-' + pid);
+          const match = !q || btn.textContent.toLowerCase().includes(q) || (sec && sec.textContent.toLowerCase().includes(q));
+          btn.style.display = match ? 'block' : 'none';
+        });
+      });
+
+      openPage('index');
+    })();
+  </script>
+</body>
+</html>

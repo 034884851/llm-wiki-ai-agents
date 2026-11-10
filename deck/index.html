@@ -1,0 +1,3769 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Agents 是什麼？從聊天機器人到自主行動系統的完整指南 — 互動式教學簡報 (Powered by LLM Wiki)</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --bg-elev: #131b33;
+      --card: #17213e;
+      --card-alt: #1d2a4d;
+      --border: #2b3c6b;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --primary: #38bdf8;
+      --primary-soft: rgba(56, 189, 248, 0.14);
+      --accent: #a78bfa;
+      --accent-soft: rgba(167, 139, 250, 0.15);
+      --success: #34d399;
+      --warning: #fbbf24;
+      --danger: #f87171;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+    [data-theme="light"] {
+      --bg: #f8fafc;
+      --bg-elev: #ffffff;
+      --card: #ffffff;
+      --card-alt: #f1f5f9;
+      --border: #cbd5e1;
+      --text: #0f172a;
+      --muted: #475569;
+      --primary: #0284c7;
+      --primary-soft: rgba(2, 132, 199, 0.1);
+      --accent: #6d28d9;
+      --accent-soft: rgba(109, 40, 217, 0.1);
+      --success: #059669;
+      --warning: #d97706;
+      --danger: #dc2626;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+    .app-shell {
+      display: grid;
+      grid-template-rows: auto 4px 1fr auto;
+      min-height: 100vh;
+    }
+    header.topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 22px;
+      background: var(--bg-elev);
+      border-bottom: 1px solid var(--border);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 0.98rem;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 9px;
+      border-radius: 999px;
+      font-size: 0.76rem;
+      font-weight: 600;
+      background: var(--primary-soft);
+      color: var(--primary);
+      border: 1px solid var(--border);
+    }
+    .badge-accent {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    button.btn {
+      background: var(--card);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.84rem;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.15s ease;
+    }
+    button.btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+    button.btn-primary {
+      background: var(--primary);
+      color: #06121e;
+      border-color: var(--primary);
+      font-weight: 600;
+    }
+    button.btn-primary:hover {
+      opacity: 0.92;
+      color: #06121e;
+    }
+    .progress-track {
+      width: 100%;
+      height: 4px;
+      background: var(--card);
+    }
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      width: 0%;
+      transition: width 0.25s ease;
+    }
+    .stage-wrap {
+      display: grid;
+      grid-template-columns: 270px 1fr;
+      min-height: 0;
+    }
+    .stage-wrap.toc-collapsed {
+      grid-template-columns: 0px 1fr;
+    }
+    aside.toc-sidebar {
+      background: var(--bg-elev);
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+      padding: 14px 10px;
+      max-height: calc(100vh - 108px);
+    }
+    .stage-wrap.toc-collapsed aside.toc-sidebar {
+      padding: 0;
+      border-right: none;
+      overflow: hidden;
+    }
+    .toc-title {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      padding: 4px 10px 8px;
+      font-weight: 700;
+    }
+    .toc-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      width: 100%;
+      text-align: left;
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--muted);
+      padding: 7px 10px;
+      border-radius: 8px;
+      font-size: 0.83rem;
+      cursor: pointer;
+      margin-bottom: 3px;
+    }
+    .toc-item:hover {
+      background: var(--card);
+      color: var(--text);
+    }
+    .toc-item.active {
+      background: var(--primary-soft);
+      color: var(--primary);
+      border-color: var(--border);
+      font-weight: 600;
+    }
+    .toc-num {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      opacity: 0.8;
+      min-width: 24px;
+    }
+    main.slide-viewport {
+      padding: 26px 36px;
+      overflow-y: auto;
+      max-height: calc(100vh - 108px);
+      display: flex;
+      justify-content: center;
+    }
+    article.slide {
+      display: none;
+      width: 100%;
+      max-width: 1040px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 30px 36px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+      align-self: flex-start;
+    }
+    article.slide.active {
+      display: block;
+    }
+    .slide-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+    .slide-title {
+      font-size: 1.75rem;
+      font-weight: 800;
+      margin: 4px 0 6px;
+      line-height: 1.3;
+    }
+    .slide-subtitle {
+      font-size: 1.02rem;
+      color: var(--muted);
+      margin: 0 0 18px;
+    }
+    .analogy-callout {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      padding: 12px 16px;
+      border-radius: 10px;
+      margin-bottom: 18px;
+      font-size: 0.95rem;
+    }
+    .analogy-callout strong {
+      color: var(--primary);
+    }
+    .diagram-box {
+      background: var(--bg-elev);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 18px;
+      margin-bottom: 18px;
+      overflow-x: auto;
+    }
+    .diagram-box pre {
+      margin: 0;
+      font-family: var(--font-mono);
+      font-size: 0.84rem;
+      line-height: 1.5;
+      color: var(--primary);
+    }
+    .bullets-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin: 14px 0 20px;
+    }
+    .bullet-card {
+      background: var(--bg-elev);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 13px 16px;
+    }
+    .bullet-text {
+      font-size: 0.98rem;
+      margin-bottom: 8px;
+    }
+    .bullet-citations {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      font-size: 0.76rem;
+    }
+    .cite-pill {
+      font-family: var(--font-mono);
+      padding: 2px 8px;
+      border-radius: 6px;
+      background: var(--card-alt);
+      color: var(--primary);
+      border: 1px solid var(--border);
+      text-decoration: none;
+    }
+    .src-pill {
+      font-family: var(--font-mono);
+      padding: 2px 8px;
+      border-radius: 6px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid var(--border);
+      text-decoration: none;
+    }
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 14px;
+      margin: 14px 0 18px;
+    }
+    .comp-col {
+      background: var(--bg-elev);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+    .comp-col h4 {
+      margin: 0 0 8px;
+      color: var(--primary);
+      font-size: 1rem;
+    }
+    .quiz-box {
+      background: var(--card-alt);
+      border: 1px dashed var(--accent);
+      border-radius: 12px;
+      padding: 14px 18px;
+      margin-top: 16px;
+    }
+    .quiz-q {
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--accent);
+    }
+    .quiz-a {
+      display: none;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+      color: var(--success);
+      font-size: 0.93rem;
+    }
+    .quiz-a.open {
+      display: block;
+    }
+    details.evidence-drawer {
+      margin-top: 18px;
+      background: var(--bg-elev);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 0.85rem;
+    }
+    details.evidence-drawer summary {
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--muted);
+    }
+    .evidence-item {
+      margin-top: 10px;
+      padding: 8px 10px;
+      border-left: 3px solid var(--accent);
+      background: var(--card);
+      border-radius: 6px;
+    }
+    .evidence-ref {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--primary);
+      font-weight: 700;
+    }
+    footer.bottombar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 22px;
+      background: var(--bg-elev);
+      border-top: 1px solid var(--border);
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .nav-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    @media (max-width: 860px) {
+      .stage-wrap {
+        grid-template-columns: 0px 1fr;
+      }
+      aside.toc-sidebar {
+        display: none;
+      }
+      main.slide-viewport {
+        padding: 14px;
+      }
+      article.slide {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <span class="badge">LLM Wiki 教學簡報</span>
+        <span>AI Agents 是什麼？從聊天機器人到自主行動系統的完整指南</span>
+      </div>
+      <div class="top-actions">
+        <a href="../" class="btn" style="text-decoration: none; color: var(--text); border-color: var(--accent);">📖 返回 LLM Wiki 知識庫</a>
+        <button class="btn" id="toggleTocBtn" type="button">目錄側欄</button>
+        <button class="btn" id="toggleEvidenceAllBtn" type="button">展開/收合全部 Wiki 證據</button>
+        <button class="btn" id="themeBtn" type="button">切換深淺主題</button>
+      </div>
+    </header>
+
+    <div class="progress-track">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <div class="stage-wrap" id="stageWrap">
+      <aside class="toc-sidebar" aria-label="簡報章節目錄">
+        <div class="toc-title">投影片導覽 (15 張)</div>
+        
+        <button class="toc-item active" data-slide-index="0" type="button">
+          <span class="toc-num">01</span>
+          <span>AI Agents 是什麼？從聊天機器人到自主行動系統</span>
+        </button>
+        
+        <button class="toc-item" data-slide-index="1" type="button">
+          <span class="toc-num">02</span>
+          <span>本簡報的 6 大學習目標與知識庫來源地圖</span>
+        </button>
+        
+        <button class="toc-item" data-slide-index="2" type="button">
+          <span class="toc-num">03</span>
+          <span>生活比喻：一般 Chatbot vs AI Agent 差在哪？</span>
+        </button>
+        
+        <button class="toc-item" data-slide-index="3" type="button">
+          <span class="toc-num">04</span>
+          <span>AI Agent 的實作三要素與自主性光譜 (Agency Spectrum)</span>
+        </button>
+        
+        <button class="toc-item" data-slide-index="4" type="button">
+          <span class="toc-num">05</span>
+          <span>所有代理系統的最小積木：Augmented LLM（擴充型語言模型）</span>
+        </button>
+        
+        <button class="toc-item" data-slide-index="5" type="button">
+          <span class="toc-num">06</span>
+          <span>自主代理的三大核心組件：Planning · Memory · Tool Use</span>
+        </button>
+        
+        <button class="toc-item" data-slide-index="6" type="button">
+          <span class="toc-num">07</span>
+          <span>Planning 與 Memory 深度拆解：從 CoT/ToT 到長短期記憶</span>
+        </button>
+        
+        <button class="toc-item" data-slide-index="7" type="button">
+          <span class="toc-num">08</span>
+          <span>ReAct 迴圈：Thought → Action → Observation 邊想邊做</span>
+        </button>
+        
+        <button class="toc-item" data-slide-index="8" type="button">
+          <span class="toc-num">09</span>
+          <span>關鍵架構分野：Workflow（工作流）vs Agent（自主代理）</span>
+        </button>
+        
+        <button class="toc-item" data-slide-index="9" type="button">
+          <span class="toc-num">10</span>
+          <span>Anthropic 的 5 種可組合 Workflow 設計模式</span>
+        </button>
+        
+        <button class="toc-item" data-slide-index="10" type="button">
+          <span class="toc-num">11</span>
+          <span>Tool Use 三大分類與 MCP（AI 應用的 USB-C 標準介面）</span>
+        </button>
+        
+        <button class="toc-item" data-slide-index="11" type="button">
+          <span class="toc-num">12</span>
+          <span>單一代理 vs 多代理系統 (Multi-Agent)：Manager 與 Handoff</span>
+        </button>
+        
+        <button class="toc-item" data-slide-index="12" type="button">
+          <span class="toc-num">13</span>
+          <span>何時該用（與不該用）AI Agent？三大適用判準與成本權衡</span>
+        </button>
+        
+        <button class="toc-item" data-slide-index="13" type="button">
+          <span class="toc-num">14</span>
+          <span>Guardrails 多層次安全護欄與 Human-in-the-Loop</span>
+        </button>
+        
+        <button class="toc-item" data-slide-index="14" type="button">
+          <span class="toc-num">15</span>
+          <span>重點總整理與互動小測驗</span>
+        </button>
+        
+      </aside>
+
+      <main class="slide-viewport">
+        
+        <article class="slide active" id="slide-S01" data-index="0">
+          <div class="slide-meta">
+            <div>
+              <span class="badge">S01 · 開場與導覽</span>
+              
+              <span class="badge badge-accent">學習目標 LO1</span>
+              
+            </div>
+            <span style="font-family: var(--font-mono); font-size: 0.82rem; color: var(--muted);">
+              Slide 1 / 15
+            </span>
+          </div>
+
+          <h1 class="slide-title">AI Agents 是什麼？從聊天機器人到自主行動系統</h1>
+          
+          <p class="slide-subtitle">為什麼大家都在談 AI Agent？它跟我們每天用的 ChatGPT 聊天機器人到底有什麼本質差異？</p>
+          
+
+          
+          <div class="analogy-callout">
+            <strong>初學者直觀比喻：</strong>如果一般的聊天機器人是一位「坐在房間裡、只動口不動手的百科顧問」，那麼 AI Agent 就是一位「有大腦能規劃、還有雙手能幫你查資料、寫程式、寄信與操作軟體的數位實習生」。
+          </div>
+          
+
+          
+
+          
+          <div class="diagram-box">
+            <pre>┌──────────────────────────────────────────────────────────────────┐
+│ 傳統 Chatbot (被動一問一答)                                      │
+│   使用者提問 ──► [ LLM 預訓練參數 ] ──► 輸出一段文字回答          │
+├──────────────────────────────────────────────────────────────────┤
+│ AI Agent (主動感知、推論、呼叫工具達成目標)                       │
+│   使用者目標 ──► [ LLM 大腦 (規劃/記憶) ] ◄──► [ 外部工具/環境 ]  │
+│                         │ (多步迴圈修正)                          │
+│                         ▼                                        │
+│                  完成真實世界任務與交付成果                        │
+└──────────────────────────────────────────────────────────────────┘</pre>
+          </div>
+          
+
+          <div class="bullets-list">
+            
+            <div class="bullet-card">
+              <div class="bullet-text">本簡報所有內容皆由「AI Agents LLM Wiki」知識庫自動檢索、查核與生成，綜合了 Anthropic、Lilian Weng (OpenAI)、ReAct 論文、OpenAI 實務指南、Hugging Face 與 MCP 官方規範共 6 篇權威文獻。</div>
+              <div class="bullet-citations">
+                <span style="color: var(--muted);">Wiki 對應段落：</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[overview#p-ov-1]]</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[src-01#p-src01-1]]</span>
+                
+                <span style="color: var(--muted); margin-left: 6px;">原始文獻：</span>
+                
+                
+                <a class="src-pill" href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" title="Building Effective Agents">
+                  [src-01: Building Effective Agents]
+                </a>
+                
+                
+                <a class="src-pill" href="https://lilianweng.github.io/posts/2023-06-23-agent/" target="_blank" rel="noopener noreferrer" title="LLM Powered Autonomous Agents">
+                  [src-02: LLM Powered Autonomous Age…]
+                </a>
+                
+                
+                <a class="src-pill" href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf" target="_blank" rel="noopener noreferrer" title="A Practical Guide to Building Agents">
+                  [src-04: A Practical Guide to Build…]
+                </a>
+                
+                
+                <a class="src-pill" href="https://huggingface.co/learn/agents-course/unit1/what-are-agents" target="_blank" rel="noopener noreferrer" title="Hugging Face Agents Course — Unit 1: What are Agents?">
+                  [src-05: Hugging Face Agents Course]
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="bullet-card">
+              <div class="bullet-text">AI Agent（人工智慧代理）是利用 AI 模型與其外部環境互動，以獨立完成使用者所設定目標的系統；它能主動拆解步驟、呼叫外部工具並根據環境回饋修正行為。</div>
+              <div class="bullet-citations">
+                <span style="color: var(--muted);">Wiki 對應段落：</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[ai-agent#p-agent-1]]</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[overview#p-ov-2]]</span>
+                
+                <span style="color: var(--muted); margin-left: 6px;">原始文獻：</span>
+                
+                
+                <a class="src-pill" href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf" target="_blank" rel="noopener noreferrer" title="A Practical Guide to Building Agents">
+                  [src-04: A Practical Guide to Build…]
+                </a>
+                
+                
+                <a class="src-pill" href="https://huggingface.co/learn/agents-course/unit1/what-are-agents" target="_blank" rel="noopener noreferrer" title="Hugging Face Agents Course — Unit 1: What are Agents?">
+                  [src-05: Hugging Face Agents Course]
+                </a>
+                
+              </div>
+            </div>
+            
+          </div>
+
+          
+
+          <details class="evidence-drawer">
+            <summary>檢視本頁引用的 LLM Wiki 知識庫原文段落 (4 筆段落證據)</summary>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[overview#p-ov-1]] — AI Agents 主題總覽：從聊天機器人到自主行動系統</div>
+              <div style="margin-top: 4px;">本頁綜合 **AI Agents LLM Wiki** 已 Ingest 的 6 篇核心文獻（[]、[]、[]、[]、[]、[]），提供從初學者入門到工程實務落地的全景知識地圖。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-01] Building Effective Agents
+                </a>
+                
+                
+                <a href="https://lilianweng.github.io/posts/2023-06-23-agent/" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-02] LLM Powered Autonomous Agents
+                </a>
+                
+                
+                <a href="https://arxiv.org/abs/2210.03629" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-03] ReAct: Synergizing Reasoning and Acting in Language Models
+                </a>
+                
+                
+                <a href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-04] A Practical Guide to Building Agents
+                </a>
+                
+                
+                <a href="https://huggingface.co/learn/agents-course/unit1/what-are-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-05] Hugging Face Agents Course — Unit 1: What are Agents?
+                </a>
+                
+                
+                <a href="https://modelcontextprotocol.io/introduction" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-06] Model Context Protocol (MCP) — Introduction
+                </a>
+                
+                
+                <a href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-01] Building Effective Agents
+                </a>
+                
+                
+                <a href="https://lilianweng.github.io/posts/2023-06-23-agent/" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-02] LLM Powered Autonomous Agents
+                </a>
+                
+                
+                <a href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-04] A Practical Guide to Building Agents
+                </a>
+                
+                
+                <a href="https://huggingface.co/learn/agents-course/unit1/what-are-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-05] Hugging Face Agents Course — Unit 1: What are Agents?
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[src-01#p-src01-1]] — Building Effective Agents (Anthropic, 2024)</div>
+              <div style="margin-top: 4px;">Anthropic 指出，在生產環境中最成功的實作往往不是用最複雜的框架，而是用簡單、可組合的模式（simple, composable patterns）來打造系統。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-01] Building Effective Agents
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[ai-agent#p-agent-1]] — AI Agent（人工智慧代理）：定義、大腦與身體架構</div>
+              <div style="margin-top: 4px;">**AI Agent（人工智慧代理）** 是一個利用 AI 模型與其外部環境互動，以獨立完成使用者所設定目標的系統；與只會被動「一問一答」的傳統聊天機器人（Chatbot）不同，Agent 能主動拆解步驟、呼叫外部工具並根據環境回饋修正行為。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-04] A Practical Guide to Building Agents
+                </a>
+                
+                
+                <a href="https://huggingface.co/learn/agents-course/unit1/what-are-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-05] Hugging Face Agents Course — Unit 1: What are Agents?
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[overview#p-ov-2]] — AI Agents 主題總覽：從聊天機器人到自主行動系統</div>
+              <div style="margin-top: 4px;">一般的大型語言模型（Chatbot）像是一位「只動口、不動手」的顧問：你問一句、它根據預訓練權重回一段文字，既不能主動查核外部事實，也無法替你執行多步驟任務；而 **[[ai-agent|AI Agent（人工智慧代理）]]** 則結合了 **Brain（大腦 ＝ LLM 推論與規劃）** 與 **Body（身體 ＝ 外部工具與行動能力）**，能感知環境並獨立執行多步驟工作流以達成使用者目標。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-04] A Practical Guide to Building Agents
+                </a>
+                
+                
+                <a href="https://huggingface.co/learn/agents-course/unit1/what-are-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-05] Hugging Face Agents Course — Unit 1: What are Agents?
+                </a>
+                
+              </div>
+            </div>
+            
+          </details>
+        </article>
+        
+        <article class="slide" id="slide-S02" data-index="1">
+          <div class="slide-meta">
+            <div>
+              <span class="badge">S02 · 開場與導覽</span>
+              
+              <span class="badge badge-accent">學習目標 LO1</span>
+              
+              <span class="badge badge-accent">學習目標 LO2</span>
+              
+              <span class="badge badge-accent">學習目標 LO3</span>
+              
+              <span class="badge badge-accent">學習目標 LO4</span>
+              
+              <span class="badge badge-accent">學習目標 LO5</span>
+              
+              <span class="badge badge-accent">學習目標 LO6</span>
+              
+            </div>
+            <span style="font-family: var(--font-mono); font-size: 0.82rem; color: var(--muted);">
+              Slide 2 / 15
+            </span>
+          </div>
+
+          <h1 class="slide-title">本簡報的 6 大學習目標與知識庫來源地圖</h1>
+          
+          <p class="slide-subtitle">讀完這 15 張投影片後，你將能從零向別人解釋 AI Agent 的運作原理與工程設計</p>
+          
+
+          
+
+          
+          <div class="comparison-grid">
+            
+            <div class="comp-col">
+              <h4>基礎概念 (LO1–LO2)</h4>
+              <p style="margin: 0; font-size: 0.92rem;">分辨 Chatbot 與 Agent 的差異、認識自主性光譜（Agency Spectrum），以及 Augmented LLM 與 Planning / Memory / Tool Use 三大支柱。</p>
+            </div>
+            
+            <div class="comp-col">
+              <h4>運作迴圈與架構 (LO3–LO5)</h4>
+              <p style="margin: 0; font-size: 0.92rem;">理解 ReAct（Thought → Action → Observation）迴圈、區分 Workflow 與 Agent 的 5 種模式、掌握 MCP 標準與多代理協作。</p>
+            </div>
+            
+            <div class="comp-col">
+              <h4>工程決策與安全 (LO6)</h4>
+              <p style="margin: 0; font-size: 0.92rem;">判斷何時該用（或不用）AI Agent 的三大準則，以及如何設計多層次 Guardrails 安全護欄與 Human-in-the-loop 人類介入。</p>
+            </div>
+            
+          </div>
+          
+
+          
+
+          <div class="bullets-list">
+            
+            <div class="bullet-card">
+              <div class="bullet-text">知識庫涵蓋 6 篇核心文獻與 12 個概念頁：每張投影片的每個重點都附有 [[concept#p-xxx]] 段落錨點與原始文獻連結，點擊投影片下方抽屜即可對照原文。</div>
+              <div class="bullet-citations">
+                <span style="color: var(--muted);">Wiki 對應段落：</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[overview#p-ov-1]]</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[overview#p-ov-3]]</span>
+                
+                <span style="color: var(--muted); margin-left: 6px;">原始文獻：</span>
+                
+                
+                <a class="src-pill" href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" title="Building Effective Agents">
+                  [src-01: Building Effective Agents]
+                </a>
+                
+                
+                <a class="src-pill" href="https://lilianweng.github.io/posts/2023-06-23-agent/" target="_blank" rel="noopener noreferrer" title="LLM Powered Autonomous Agents">
+                  [src-02: LLM Powered Autonomous Age…]
+                </a>
+                
+                
+                <a class="src-pill" href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf" target="_blank" rel="noopener noreferrer" title="A Practical Guide to Building Agents">
+                  [src-04: A Practical Guide to Build…]
+                </a>
+                
+                
+                <a class="src-pill" href="https://modelcontextprotocol.io/introduction" target="_blank" rel="noopener noreferrer" title="Model Context Protocol (MCP) — Introduction">
+                  [src-06: Model Context Protocol (MCP)]
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="bullet-card">
+              <div class="bullet-text">從初學者直觀的 Brain + Body 比喻出發，逐步深入 ReAct 推論行動迴圈、5 種確定性 Workflow 模式與企業級安全護欄。</div>
+              <div class="bullet-citations">
+                <span style="color: var(--muted);">Wiki 對應段落：</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[overview#p-ov-2]]</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[overview#p-ov-4]]</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[overview#p-ov-5]]</span>
+                
+                <span style="color: var(--muted); margin-left: 6px;">原始文獻：</span>
+                
+                
+                <a class="src-pill" href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" title="Building Effective Agents">
+                  [src-01: Building Effective Agents]
+                </a>
+                
+                
+                <a class="src-pill" href="https://arxiv.org/abs/2210.03629" target="_blank" rel="noopener noreferrer" title="ReAct: Synergizing Reasoning and Acting in Language Models">
+                  [src-03: ReAct]
+                </a>
+                
+                
+                <a class="src-pill" href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf" target="_blank" rel="noopener noreferrer" title="A Practical Guide to Building Agents">
+                  [src-04: A Practical Guide to Build…]
+                </a>
+                
+                
+                <a class="src-pill" href="https://huggingface.co/learn/agents-course/unit1/what-are-agents" target="_blank" rel="noopener noreferrer" title="Hugging Face Agents Course — Unit 1: What are Agents?">
+                  [src-05: Hugging Face Agents Course]
+                </a>
+                
+              </div>
+            </div>
+            
+          </div>
+
+          
+
+          <details class="evidence-drawer">
+            <summary>檢視本頁引用的 LLM Wiki 知識庫原文段落 (5 筆段落證據)</summary>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[overview#p-ov-1]] — AI Agents 主題總覽：從聊天機器人到自主行動系統</div>
+              <div style="margin-top: 4px;">本頁綜合 **AI Agents LLM Wiki** 已 Ingest 的 6 篇核心文獻（[]、[]、[]、[]、[]、[]），提供從初學者入門到工程實務落地的全景知識地圖。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-01] Building Effective Agents
+                </a>
+                
+                
+                <a href="https://lilianweng.github.io/posts/2023-06-23-agent/" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-02] LLM Powered Autonomous Agents
+                </a>
+                
+                
+                <a href="https://arxiv.org/abs/2210.03629" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-03] ReAct: Synergizing Reasoning and Acting in Language Models
+                </a>
+                
+                
+                <a href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-04] A Practical Guide to Building Agents
+                </a>
+                
+                
+                <a href="https://huggingface.co/learn/agents-course/unit1/what-are-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-05] Hugging Face Agents Course — Unit 1: What are Agents?
+                </a>
+                
+                
+                <a href="https://modelcontextprotocol.io/introduction" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-06] Model Context Protocol (MCP) — Introduction
+                </a>
+                
+                
+                <a href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-01] Building Effective Agents
+                </a>
+                
+                
+                <a href="https://lilianweng.github.io/posts/2023-06-23-agent/" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-02] LLM Powered Autonomous Agents
+                </a>
+                
+                
+                <a href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-04] A Practical Guide to Building Agents
+                </a>
+                
+                
+                <a href="https://huggingface.co/learn/agents-course/unit1/what-are-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-05] Hugging Face Agents Course — Unit 1: What are Agents?
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[overview#p-ov-3]] — AI Agents 主題總覽：從聊天機器人到自主行動系統</div>
+              <div style="margin-top: 4px;">所有代理系統的共同最小建構積木都是 **[[augmented-llm|Augmented LLM（擴充型語言模型）]]**，並由三大核心組件支撐：(1) **[[planning|Planning（規劃）]]** 負責透過 CoT / ToT 拆解子任務並進行自我反思；(2) **[[memory|Memory（記憶）]]** 結合 Context Window 短期工作記憶與外部向量／Wiki 長期記憶；(3) **[[tool-use|Tool Use（工具使用）]]** 透過 Data、Action、Orchestration 三類工具以及開放標準 **[[mcp|Model Context Protocol (MCP)]]** 與外部世界接軌。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-01] Building Effective Agents
+                </a>
+                
+                
+                <a href="https://lilianweng.github.io/posts/2023-06-23-agent/" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-02] LLM Powered Autonomous Agents
+                </a>
+                
+                
+                <a href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-04] A Practical Guide to Building Agents
+                </a>
+                
+                
+                <a href="https://modelcontextprotocol.io/introduction" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-06] Model Context Protocol (MCP) — Introduction
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[overview#p-ov-2]] — AI Agents 主題總覽：從聊天機器人到自主行動系統</div>
+              <div style="margin-top: 4px;">一般的大型語言模型（Chatbot）像是一位「只動口、不動手」的顧問：你問一句、它根據預訓練權重回一段文字，既不能主動查核外部事實，也無法替你執行多步驟任務；而 **[[ai-agent|AI Agent（人工智慧代理）]]** 則結合了 **Brain（大腦 ＝ LLM 推論與規劃）** 與 **Body（身體 ＝ 外部工具與行動能力）**，能感知環境並獨立執行多步驟工作流以達成使用者目標。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-04] A Practical Guide to Building Agents
+                </a>
+                
+                
+                <a href="https://huggingface.co/learn/agents-course/unit1/what-are-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-05] Hugging Face Agents Course — Unit 1: What are Agents?
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[overview#p-ov-4]] — AI Agents 主題總覽：從聊天機器人到自主行動系統</div>
+              <div style="margin-top: 4px;">為了避免純思考鏈（CoT）在封閉推論中產生幻覺，現代 Agent 普遍採用 **[[react|ReAct（Reasoning + Acting）]]** 迴圈，交替執行 `Thought（思考下一步）→ Action（呼叫外部工具）→ Observation（觀察環境回傳結果）`，將外部真實證據不斷帶回上下文視窗。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://arxiv.org/abs/2210.03629" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-03] ReAct: Synergizing Reasoning and Acting in Language Models
+                </a>
+                
+                
+                <a href="https://lilianweng.github.io/posts/2023-06-23-agent/" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-02] LLM Powered Autonomous Agents
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[overview#p-ov-5]] — AI Agents 主題總覽：從聊天機器人到自主行動系統</div>
+              <div style="margin-top: 4px;">在工程實務上，系統設計沿著連續的 **[[workflow-vs-agent|自主性光譜（Agency Spectrum）]]** 展開：若步驟可事先預期，應優先使用確定性的 **[[workflow-patterns|5 種常見 Workflow 模式]]**（Prompt Chaining、Routing、Parallelization、Orchestrator-Workers、Evaluator-Optimizer）；只有面對複雜決策、難維護的規則或非結構化資料時（見 **[[when-to-use-agents]]**），才升級為自主 Agent 或 **[[multi-agent|Multi-Agent 多代理系統（Manager 與 Decentralized Handoff）]]**，並搭配多層次 **[[guardrails|Guardrails 安全護欄與 Human-in-the-loop]]** 確保安全可控。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-01] Building Effective Agents
+                </a>
+                
+                
+                <a href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-04] A Practical Guide to Building Agents
+                </a>
+                
+                
+                <a href="https://huggingface.co/learn/agents-course/unit1/what-are-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-05] Hugging Face Agents Course — Unit 1: What are Agents?
+                </a>
+                
+              </div>
+            </div>
+            
+          </details>
+        </article>
+        
+        <article class="slide" id="slide-S03" data-index="2">
+          <div class="slide-meta">
+            <div>
+              <span class="badge">S03 · 直觀理解</span>
+              
+              <span class="badge badge-accent">學習目標 LO1</span>
+              
+            </div>
+            <span style="font-family: var(--font-mono); font-size: 0.82rem; color: var(--muted);">
+              Slide 3 / 15
+            </span>
+          </div>
+
+          <h1 class="slide-title">生活比喻：一般 Chatbot vs AI Agent 差在哪？</h1>
+          
+          <p class="slide-subtitle">用「大腦（Brain）」與「身體（Body）」兩個部位秒懂 AI Agent</p>
+          
+
+          
+          <div class="analogy-callout">
+            <strong>初學者直觀比喻：</strong>你對 Chatbot 說「我下午要請假」，它只能幫你寫一封請假信草稿；你對 AI Agent 說同一句話，它會先查你的行事曆確認下午有哪些會議、呼叫請假系統送出假單，再寄信通知主管與同事。
+          </div>
+          
+
+          
+          <div class="comparison-grid">
+            
+            <div class="comp-col">
+              <h4>Brain（大腦 ＝ 語言模型 LLM）</h4>
+              <p style="margin: 0; font-size: 0.92rem;">負責理解目標、思考（Reasoning）、拆解計畫（Planning）與根據環境回傳的結果決定下一步該做什麼。</p>
+            </div>
+            
+            <div class="comp-col">
+              <h4>Body（身體 ＝ 工具與能力 Tools）</h4>
+              <p style="margin: 0; font-size: 0.92rem;">代表代理被賦予的所有外部工具（搜尋引擎、資料庫查詢、程式碼直譯器、寄信 API），定義了它能在真實世界做出的動作。</p>
+            </div>
+            
+          </div>
+          
+
+          
+
+          <div class="bullets-list">
+            
+            <div class="bullet-card">
+              <div class="bullet-text">傳統對話機器人只根據預訓練權重被動回答單輪問題；而 AI Agent 結合了推論、規劃與執行動作的能力，能代表使用者與外部環境互動以達成目標。</div>
+              <div class="bullet-citations">
+                <span style="color: var(--muted);">Wiki 對應段落：</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[ai-agent#p-agent-1]]</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[src-05#p-src05-1]]</span>
+                
+                <span style="color: var(--muted); margin-left: 6px;">原始文獻：</span>
+                
+                
+                <a class="src-pill" href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf" target="_blank" rel="noopener noreferrer" title="A Practical Guide to Building Agents">
+                  [src-04: A Practical Guide to Build…]
+                </a>
+                
+                
+                <a class="src-pill" href="https://huggingface.co/learn/agents-course/unit1/what-are-agents" target="_blank" rel="noopener noreferrer" title="Hugging Face Agents Course — Unit 1: What are Agents?">
+                  [src-05: Hugging Face Agents Course]
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="bullet-card">
+              <div class="bullet-text">Hugging Face 將 Agent 拆解為 Brain（AI 模型負責思考與規劃）與 Body（工具與能力負責執行外部動作），透過不斷循環的感知與行動迴圈在自然語言與真實世界執行之間搭起橋樑。</div>
+              <div class="bullet-citations">
+                <span style="color: var(--muted);">Wiki 對應段落：</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[ai-agent#p-agent-2]]</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[src-05#p-src05-2]]</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[src-05#p-src05-4]]</span>
+                
+                <span style="color: var(--muted); margin-left: 6px;">原始文獻：</span>
+                
+                
+                <a class="src-pill" href="https://huggingface.co/learn/agents-course/unit1/what-are-agents" target="_blank" rel="noopener noreferrer" title="Hugging Face Agents Course — Unit 1: What are Agents?">
+                  [src-05: Hugging Face Agents Course]
+                </a>
+                
+              </div>
+            </div>
+            
+          </div>
+
+          
+
+          <details class="evidence-drawer">
+            <summary>檢視本頁引用的 LLM Wiki 知識庫原文段落 (5 筆段落證據)</summary>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[ai-agent#p-agent-1]] — AI Agent（人工智慧代理）：定義、大腦與身體架構</div>
+              <div style="margin-top: 4px;">**AI Agent（人工智慧代理）** 是一個利用 AI 模型與其外部環境互動，以獨立完成使用者所設定目標的系統；與只會被動「一問一答」的傳統聊天機器人（Chatbot）不同，Agent 能主動拆解步驟、呼叫外部工具並根據環境回饋修正行為。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-04] A Practical Guide to Building Agents
+                </a>
+                
+                
+                <a href="https://huggingface.co/learn/agents-course/unit1/what-are-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-05] Hugging Face Agents Course — Unit 1: What are Agents?
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[src-05#p-src05-1]] — Hugging Face Agents Course — Unit 1: What are Agents? (2025)</div>
+              <div style="margin-top: 4px;">Hugging Face 對初學者給出的清晰定義是：**[[ai-agent|AI Agent]] 是一個利用 AI 模型與其環境互動，以完成使用者所定義目標的系統**；它結合了推論、規劃與執行動作（通常透過外部工具）的能力。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://huggingface.co/learn/agents-course/unit1/what-are-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-05] Hugging Face Agents Course — Unit 1: What are Agents?
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[ai-agent#p-agent-2]] — AI Agent（人工智慧代理）：定義、大腦與身體架構</div>
+              <div style="margin-top: 4px;">從初學者的直觀比喻來看（參見 [[src-05|Hugging Face Agents Course]]），一個 AI Agent 就像擁有兩個核心部位的數位助理：**Brain（大腦 ＝ 語言模型 LLM）** 負責思考、推論與規劃下一步；**Body（身體 ＝ 工具與能力 Tools &amp; Capabilities）** 則賦予它在真實世界行動的手腳，例如搜尋網頁、查詢資料庫、寄送電子郵件或執行程式碼。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://huggingface.co/learn/agents-course/unit1/what-are-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-05] Hugging Face Agents Course — Unit 1: What are Agents?
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[src-05#p-src05-2]] — Hugging Face Agents Course — Unit 1: What are Agents? (2025)</div>
+              <div style="margin-top: 4px;">可以用人體結構將 Agent 拆解成兩個核心部位：第一部分是 **Brain（大腦 ＝ AI 模型）**，負責所有思考、推論與規劃，決定下一步該採取哪些行動；第二部分是 **Body（身體 ＝ 工具與能力 Tools &amp; Capabilities）**，代表代理被賦予的所有外部工具，定義了代理能夠在環境中實際做出哪些動作（例如發送郵件、搜尋網頁、查詢天氣或生成圖片）。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://huggingface.co/learn/agents-course/unit1/what-are-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-05] Hugging Face Agents Course — Unit 1: What are Agents?
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[src-05#p-src05-4]] — Hugging Face Agents Course — Unit 1: What are Agents? (2025)</div>
+              <div style="margin-top: 4px;">Agent 透過不斷循環的感知與行動迴圈（Perception-Action Cycle，常以 [[react|Thought → Action → Observation]] 實作）在自然語言理解與真實世界執行之間搭起橋樑，讓使用者只需用自然語言下達高階目標（例如「幫我查今天行程並寄信告訴主管我下午請假」），代理就能自行規劃步驟並呼叫對應工具完成任務。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://huggingface.co/learn/agents-course/unit1/what-are-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-05] Hugging Face Agents Course — Unit 1: What are Agents?
+                </a>
+                
+              </div>
+            </div>
+            
+          </details>
+        </article>
+        
+        <article class="slide" id="slide-S04" data-index="3">
+          <div class="slide-meta">
+            <div>
+              <span class="badge">S04 · 基礎定義</span>
+              
+              <span class="badge badge-accent">學習目標 LO1</span>
+              
+              <span class="badge badge-accent">學習目標 LO4</span>
+              
+            </div>
+            <span style="font-family: var(--font-mono); font-size: 0.82rem; color: var(--muted);">
+              Slide 4 / 15
+            </span>
+          </div>
+
+          <h1 class="slide-title">AI Agent 的實作三要素與自主性光譜 (Agency Spectrum)</h1>
+          
+          <p class="slide-subtitle">工程師寫程式時，一個 Agent 到底包含哪些零件？自主性又是怎麼分級的？</p>
+          
+
+          
+
+          
+
+          
+          <div class="diagram-box">
+            <pre>自主性光譜 (Spectrum of Agency)：不是非 0 即 1，而是連續光譜
+
+  Level 0           Level 1            Level 2                Level 3
+[ 純模型輸出 ] ──► [ 路由分流 ] ──► [ 多步工作流/工具呼叫 ] ──► [ 高自主/多代理系統 ]
+ (無自主控制)     (決定走哪條路)    (固定或半自主多步執行)     (模型動態主導控制流)</pre>
+          </div>
+          
+
+          <div class="bullets-list">
+            
+            <div class="bullet-card">
+              <div class="bullet-text">根據 OpenAI 實務指南，每個可運行的 Agent 由三個基礎要素組成：(1) Model（負責推論與決策的語言模型）、(2) Tools（讀取資料或執行動作的外部函數／API）、(3) Instructions（明確規範行為、步驟與安全邊界的指令）。</div>
+              <div class="bullet-citations">
+                <span style="color: var(--muted);">Wiki 對應段落：</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[ai-agent#p-agent-4]]</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[src-04#p-src04-1]]</span>
+                
+                <span style="color: var(--muted); margin-left: 6px;">原始文獻：</span>
+                
+                
+                <a class="src-pill" href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf" target="_blank" rel="noopener noreferrer" title="A Practical Guide to Building Agents">
+                  [src-04: A Practical Guide to Build…]
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="bullet-card">
+              <div class="bullet-text">Anthropic 與 Hugging Face 強調「代理性（Agency）」是一條連續的自主性光譜：從完全由程式碼固定步驟的工作流，一路延伸到由模型自行決定迭代次數與控制流的自主代理。</div>
+              <div class="bullet-citations">
+                <span style="color: var(--muted);">Wiki 對應段落：</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[ai-agent#p-agent-5]]</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[workflow-vs-agent#p-wva-4]]</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[src-05#p-src05-3]]</span>
+                
+                <span style="color: var(--muted); margin-left: 6px;">原始文獻：</span>
+                
+                
+                <a class="src-pill" href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" title="Building Effective Agents">
+                  [src-01: Building Effective Agents]
+                </a>
+                
+                
+                <a class="src-pill" href="https://huggingface.co/learn/agents-course/unit1/what-are-agents" target="_blank" rel="noopener noreferrer" title="Hugging Face Agents Course — Unit 1: What are Agents?">
+                  [src-05: Hugging Face Agents Course]
+                </a>
+                
+              </div>
+            </div>
+            
+          </div>
+
+          
+
+          <details class="evidence-drawer">
+            <summary>檢視本頁引用的 LLM Wiki 知識庫原文段落 (5 筆段落證據)</summary>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[ai-agent#p-agent-4]] — AI Agent（人工智慧代理）：定義、大腦與身體架構</div>
+              <div style="margin-top: 4px;">而在工程實作層面，[[src-04|OpenAI (2025)]] 將每一個可運行的 Agent 濃縮為三個基礎要素（Foundational Components）：(1) **Model**（驅動推論與決策的 LLM）；(2) **Tools**（代理可用來讀取資料或執行動作的外部函數與 API）；(3) **Instructions**（開發者設定的明確行為準則、工作步驟與安全邊界）。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-04] A Practical Guide to Building Agents
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[src-04#p-src04-1]] — A Practical Guide to Building Agents (OpenAI, 2025)</div>
+              <div style="margin-top: 4px;">OpenAI 將 [[ai-agent|Agent（代理）]] 定義為能代表使用者獨立完成多步驟工作流的系統，其底層由三個基礎要素組成：(1) **Model**（負責推論與決策的語言模型）；(2) **Tools**（讓代理與外部系統互動的外部函數或 API）；(3) **Instructions**（明確規範代理行為、步驟與邊界的指引與安全規範）。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-04] A Practical Guide to Building Agents
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[ai-agent#p-agent-5]] — AI Agent（人工智慧代理）：定義、大腦與身體架構</div>
+              <div style="margin-top: 4px;">要特別注意的是，[[src-01|Anthropic (2024)]] 與 [[src-05|Hugging Face (2025)]] 都強調「代理性（Agency）」是一條連續的 **[[workflow-vs-agent|自主性光譜（Spectrum of Agency）]]**：從步驟由程式碼固定編排的確定性 **Workflow（工作流）**，一路延伸到由模型動態決定控制流與迴圈次數的高自主 **Autonomous Agent**。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-01] Building Effective Agents
+                </a>
+                
+                
+                <a href="https://huggingface.co/learn/agents-course/unit1/what-are-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-05] Hugging Face Agents Course — Unit 1: What are Agents?
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[workflow-vs-agent#p-wva-4]] — Workflow vs Agent：確定性工作流與自主代理的差異及自主性光譜</div>
+              <div style="margin-top: 4px;">[[src-05|Hugging Face Agents Course]] 進一步以 **自主性光譜（Spectrum of Agency）** 統合這兩者：代理性不是非黑即白，而是從 Level 0（單純模型輸出，無自主性）、Level 1（Routing 路由決定分支）、Level 2（確定性或半自主的多步 [[workflow-patterns|Workflow]] 與工具迴圈），一路延伸到 Level 3（模型完全掌控控制流、甚至觸發其他 [[multi-agent|子代理]] 的自主 Agent）。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-01] Building Effective Agents
+                </a>
+                
+                
+                <a href="https://huggingface.co/learn/agents-course/unit1/what-are-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-05] Hugging Face Agents Course — Unit 1: What are Agents?
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[src-05#p-src05-3]] — Hugging Face Agents Course — Unit 1: What are Agents? (2025)</div>
+              <div style="margin-top: 4px;">根據 [[workflow-vs-agent|自主性光譜（Spectrum of Agency）]]，代理性並不是非 0 即 1 的二元概念，而是一條連續的光譜：從最左端完全沒有代理性的單純模型輸出（0 星），到決定分支走向的路由（1 星）、決定呼叫哪些函數並可多步迴圈的工具呼叫與代理工作流（2 星），直到最右端能由一個代理再觸發其他子代理工作流的完全高自主系統（3 星）。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://huggingface.co/learn/agents-course/unit1/what-are-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-05] Hugging Face Agents Course — Unit 1: What are Agents?
+                </a>
+                
+              </div>
+            </div>
+            
+          </details>
+        </article>
+        
+        <article class="slide" id="slide-S05" data-index="4">
+          <div class="slide-meta">
+            <div>
+              <span class="badge">S05 · 基礎定義</span>
+              
+              <span class="badge badge-accent">學習目標 LO1</span>
+              
+              <span class="badge badge-accent">學習目標 LO2</span>
+              
+            </div>
+            <span style="font-family: var(--font-mono); font-size: 0.82rem; color: var(--muted);">
+              Slide 5 / 15
+            </span>
+          </div>
+
+          <h1 class="slide-title">所有代理系統的最小積木：Augmented LLM（擴充型語言模型）</h1>
+          
+          <p class="slide-subtitle">在蓋出複雜的 Agent 大樓之前，先把最底層的這塊積木做好</p>
+          
+
+          
+
+          
+
+          
+          <div class="diagram-box">
+            <pre>                  ┌────────────────────────┐
+                  │    Retrieval (檢索)     │
+                  └───────────▲────────────┘
+                              │
+  輸入 (Input) ──► ┌──────────┴───────────┐ ──► 輸出 (Output)
+                   │    Augmented LLM     │
+                   │   (擴充型語言模型)     │
+                   └────▲────────────▲────┘
+                        │            │
+         ┌──────────────┘            └──────────────┐
+         ▼                                          ▼
+┌─────────────────┐                        ┌─────────────────┐
+│  Tools (工具)    │                        │  Memory (記憶)   │
+└─────────────────┘                        └─────────────────┘</pre>
+          </div>
+          
+
+          <div class="bullets-list">
+            
+            <div class="bullet-card">
+              <div class="bullet-text">Anthropic 指出，無論是確定性的 Workflow 還是自主 Agent，它們共同的最小建構單元都是 Augmented LLM（擴充型語言模型）。</div>
+              <div class="bullet-citations">
+                <span style="color: var(--muted);">Wiki 對應段落：</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[augmented-llm#p-aug-1]]</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[src-01#p-src01-3]]</span>
+                
+                <span style="color: var(--muted); margin-left: 6px;">原始文獻：</span>
+                
+                
+                <a class="src-pill" href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" title="Building Effective Agents">
+                  [src-01: Building Effective Agents]
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="bullet-card">
+              <div class="bullet-text">Augmented LLM 在基礎語言模型外圍掛載了三大擴充能力：Retrieval（主動檢索外部知識）、Tools（呼叫外部工具 API）與 Memory（讀寫短期與長期記憶）。</div>
+              <div class="bullet-citations">
+                <span style="color: var(--muted);">Wiki 對應段落：</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[augmented-llm#p-aug-2]]</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[src-01#p-src01-3]]</span>
+                
+                <span style="color: var(--muted); margin-left: 6px;">原始文獻：</span>
+                
+                
+                <a class="src-pill" href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" title="Building Effective Agents">
+                  [src-01: Building Effective Agents]
+                </a>
+                
+                
+                <a class="src-pill" href="https://lilianweng.github.io/posts/2023-06-23-agent/" target="_blank" rel="noopener noreferrer" title="LLM Powered Autonomous Agents">
+                  [src-02: LLM Powered Autonomous Age…]
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="bullet-card">
+              <div class="bullet-text">工程實作上，可以透過原生 Function Calling 或開放標準 Model Context Protocol (MCP) 將這些外部資料源與工具連接到模型上。</div>
+              <div class="bullet-citations">
+                <span style="color: var(--muted);">Wiki 對應段落：</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[augmented-llm#p-aug-3]]</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[mcp#p-mcp-1]]</span>
+                
+                <span style="color: var(--muted); margin-left: 6px;">原始文獻：</span>
+                
+                
+                <a class="src-pill" href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" title="Building Effective Agents">
+                  [src-01: Building Effective Agents]
+                </a>
+                
+                
+                <a class="src-pill" href="https://modelcontextprotocol.io/introduction" target="_blank" rel="noopener noreferrer" title="Model Context Protocol (MCP) — Introduction">
+                  [src-06: Model Context Protocol (MCP)]
+                </a>
+                
+              </div>
+            </div>
+            
+          </div>
+
+          
+
+          <details class="evidence-drawer">
+            <summary>檢視本頁引用的 LLM Wiki 知識庫原文段落 (5 筆段落證據)</summary>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[augmented-llm#p-aug-1]] — Augmented LLM（擴充型語言模型）：所有代理系統的共同積木</div>
+              <div style="margin-top: 4px;">根據 [[src-01|Anthropic《Building Effective Agents》]]，不論是確定性的 [[workflow-vs-agent|Workflow]] 還是高自主性的 [[ai-agent|Agent]]，它們最底層的基本建構積木（building block）都是 **Augmented LLM（擴充型語言模型）**。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-01] Building Effective Agents
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[src-01#p-src01-3]] — Building Effective Agents (Anthropic, 2024)</div>
+              <div style="margin-top: 4px;">所有代理系統的共同最小建構單元都是 **[[augmented-llm|Augmented LLM（擴充型語言模型）]]**，即在基礎 LLM 之上整合檢索（Retrieval）、工具（Tools）與記憶（Memory）三大擴充能力。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-01] Building Effective Agents
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[augmented-llm#p-aug-2]] — Augmented LLM（擴充型語言模型）：所有代理系統的共同積木</div>
+              <div style="margin-top: 4px;">單純的預訓練語言模型只能根據訓練截止前的參數權重產生文字；而 **Augmented LLM** 則在模型外圍加上三種關鍵擴充能力：**Retrieval（檢索外部知識）**、**[[tool-use|Tools（呼叫外部工具）]]** 與 **[[memory|Memory（讀寫短期與長期記憶）]]**，且現代模型已能主動決定何時產生搜尋查詢、選用哪個工具、以及哪些資訊應該保留到記憶中。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-01] Building Effective Agents
+                </a>
+                
+                
+                <a href="https://lilianweng.github.io/posts/2023-06-23-agent/" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-02] LLM Powered Autonomous Agents
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[augmented-llm#p-aug-3]] — Augmented LLM（擴充型語言模型）：所有代理系統的共同積木</div>
+              <div style="margin-top: 4px;">在實作 Augmented LLM 的外部連接時，工程團隊可以使用自訂函數呼叫（Function Calling），或是採用 [[src-06|Anthropic 開源的 Model Context Protocol (MCP)]] 標準協議，以統一的 Client-Server 介面掛載本地與遠端的資料源和工具。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-01] Building Effective Agents
+                </a>
+                
+                
+                <a href="https://modelcontextprotocol.io/introduction" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-06] Model Context Protocol (MCP) — Introduction
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[mcp#p-mcp-1]] — MCP（Model Context Protocol）：AI 應用的 USB-C 工具標準介面</div>
+              <div style="margin-top: 4px;">**Model Context Protocol (MCP)** 是由 [[src-06|Anthropic 開源的開放標準協議]]，專門用來統一應用程式如何向大型語言模型提供外部上下文資料（Context）與 [[tool-use|工具呼叫能力]]。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://modelcontextprotocol.io/introduction" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-06] Model Context Protocol (MCP) — Introduction
+                </a>
+                
+              </div>
+            </div>
+            
+          </details>
+        </article>
+        
+        <article class="slide" id="slide-S06" data-index="5">
+          <div class="slide-meta">
+            <div>
+              <span class="badge">S06 · 三大核心組件</span>
+              
+              <span class="badge badge-accent">學習目標 LO2</span>
+              
+            </div>
+            <span style="font-family: var(--font-mono); font-size: 0.82rem; color: var(--muted);">
+              Slide 6 / 15
+            </span>
+          </div>
+
+          <h1 class="slide-title">自主代理的三大核心組件：Planning · Memory · Tool Use</h1>
+          
+          <p class="slide-subtitle">Lilian Weng (OpenAI) 最經典的自主代理系統架構圖解</p>
+          
+
+          
+
+          
+          <div class="comparison-grid">
+            
+            <div class="comp-col">
+              <h4>1. Planning（規劃）</h4>
+              <p style="margin: 0; font-size: 0.92rem;">包含「任務拆解（Task Decomposition，把大目標切成小步驟）」與「自我反思（Self-Reflection，從錯誤與回饋中修正計畫）」。</p>
+            </div>
+            
+            <div class="comp-col">
+              <h4>2. Memory（記憶）</h4>
+              <p style="margin: 0; font-size: 0.92rem;">分為「短期記憶（Context Window 上下文學習）」與「長期記憶（外部向量資料庫或結構化 LLM Wiki 持久知識庫）」。</p>
+            </div>
+            
+            <div class="comp-col">
+              <h4>3. Tool Use（工具使用）</h4>
+              <p style="margin: 0; font-size: 0.92rem;">呼叫外部搜尋引擎、資料庫、計算機、程式碼直譯器與業務 API，突破模型靜態預訓練權重的限制。</p>
+            </div>
+            
+          </div>
+          
+
+          
+
+          <div class="bullets-list">
+            
+            <div class="bullet-card">
+              <div class="bullet-text">在 Lilian Weng (2023) 的架構中，LLM 扮演系統的核心大腦（Brain），並由 Planning（規劃）、Memory（記憶）與 Tool Use（工具使用）三大關鍵組件互補支撐。</div>
+              <div class="bullet-citations">
+                <span style="color: var(--muted);">Wiki 對應段落：</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[ai-agent#p-agent-3]]</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[src-02#p-src02-1]]</span>
+                
+                <span style="color: var(--muted); margin-left: 6px;">原始文獻：</span>
+                
+                
+                <a class="src-pill" href="https://lilianweng.github.io/posts/2023-06-23-agent/" target="_blank" rel="noopener noreferrer" title="LLM Powered Autonomous Agents">
+                  [src-02: LLM Powered Autonomous Age…]
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="bullet-card">
+              <div class="bullet-text">Planning 讓代理能拆解子目標並自我修正；Memory 讓代理能記住當前對話狀態與跨階段知識；Tool Use 則賦予代理查核事實與改變外部環境的能力。</div>
+              <div class="bullet-citations">
+                <span style="color: var(--muted);">Wiki 對應段落：</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[planning#p-plan-1]]</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[memory#p-mem-2]]</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[memory#p-mem-3]]</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[tool-use#p-tool-1]]</span>
+                
+                <span style="color: var(--muted); margin-left: 6px;">原始文獻：</span>
+                
+                
+                <a class="src-pill" href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" title="Building Effective Agents">
+                  [src-01: Building Effective Agents]
+                </a>
+                
+                
+                <a class="src-pill" href="https://lilianweng.github.io/posts/2023-06-23-agent/" target="_blank" rel="noopener noreferrer" title="LLM Powered Autonomous Agents">
+                  [src-02: LLM Powered Autonomous Age…]
+                </a>
+                
+                
+                <a class="src-pill" href="https://huggingface.co/learn/agents-course/unit1/what-are-agents" target="_blank" rel="noopener noreferrer" title="Hugging Face Agents Course — Unit 1: What are Agents?">
+                  [src-05: Hugging Face Agents Course]
+                </a>
+                
+              </div>
+            </div>
+            
+          </div>
+
+          
+
+          <details class="evidence-drawer">
+            <summary>檢視本頁引用的 LLM Wiki 知識庫原文段落 (6 筆段落證據)</summary>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[ai-agent#p-agent-3]] — AI Agent（人工智慧代理）：定義、大腦與身體架構</div>
+              <div style="margin-top: 4px;">從系統架構的角度來看，[[src-02|Lilian Weng (2023)]] 提出最具代表性的自主代理三大支柱公式：以 LLM 作為核心控制器，外加 **[[planning|Planning（規劃：子任務拆解與自我反思）]]**、**[[memory|Memory（記憶：短期上下文視窗與長期向量知識庫）]]** 以及 **[[tool-use|Tool Use（工具使用：呼叫外部 API 與工具）]]**。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://lilianweng.github.io/posts/2023-06-23-agent/" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-02] LLM Powered Autonomous Agents
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[src-02#p-src02-1]] — LLM Powered Autonomous Agents (Lilian Weng, 2023)</div>
+              <div style="margin-top: 4px;">在以大型語言模型驅動的自主代理（Autonomous Agent）系統中，LLM 扮演系統的「核心大腦（Brain）」，並由三大關鍵組件互補支撐：**[[planning|Planning（規劃）]]**、**[[memory|Memory（記憶）]]** 與 **[[tool-use|Tool Use（工具使用）]]**。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://lilianweng.github.io/posts/2023-06-23-agent/" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-02] LLM Powered Autonomous Agents
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[planning#p-plan-1]] — Planning（規劃）：任務拆解與自我反思</div>
+              <div style="margin-top: 4px;">在 [[src-02|Lilian Weng (2023)]] 的自主代理架構中，面對複雜的多步驟任務，[[ai-agent|AI Agent]] 不能直接一步跳到答案，必須依賴 **Planning（規劃）** 組件，其核心包含兩大機制：**Task Decomposition（任務拆解）** 與 **Self-Reflection（自我反思與修正）**。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://lilianweng.github.io/posts/2023-06-23-agent/" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-02] LLM Powered Autonomous Agents
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[memory#p-mem-2]] — Memory（記憶系統）：短期上下文與長期外部知識庫</div>
+              <div style="margin-top: 4px;">**短期記憶（Short-term / Working Memory）** 直接對應大型語言模型的 **上下文學習（In-context Learning）**：所有當前對話紀錄、工具回傳的觀察結果與進行中的子任務狀態都放在 Context Window 內，直接受限於模型的上下文視窗長度上限（finite context window length）。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://lilianweng.github.io/posts/2023-06-23-agent/" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-02] LLM Powered Autonomous Agents
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[memory#p-mem-3]] — Memory（記憶系統）：短期上下文與長期外部知識庫</div>
+              <div style="margin-top: 4px;">**長期記憶（Long-term Memory）** 則是讓 Agent 在啟動時或執行過程中可以隨時查詢與寫入的 **外部持久儲存空間（External Persistent Storage）**，常見實作包含以近似最近鄰搜尋（ANN / MIPS，如 FAISS、HNSW）加速的外部向量資料庫，或是像本專案一樣由 LLM 結構化維護並建立雙向連結與 `index.md` 目錄的持久知識庫（LLM Wiki）。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-01] Building Effective Agents
+                </a>
+                
+                
+                <a href="https://lilianweng.github.io/posts/2023-06-23-agent/" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-02] LLM Powered Autonomous Agents
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[tool-use#p-tool-1]] — Tool Use（工具使用）：賦予語言模型雙手與感官</div>
+              <div style="margin-top: 4px;">大型語言模型本身的參數權重在預訓練完成後即凍結，既不知道即時新聞或企業內部私有資料，也不擅長精確算術或直接操作外部軟體；**Tool Use（工具使用）** 正是為 [[ai-agent|AI Agent]] 裝上「感官與雙手（Body）」，讓模型能夠主動查詢外部世界並執行實際動作。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://lilianweng.github.io/posts/2023-06-23-agent/" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-02] LLM Powered Autonomous Agents
+                </a>
+                
+                
+                <a href="https://huggingface.co/learn/agents-course/unit1/what-are-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-05] Hugging Face Agents Course — Unit 1: What are Agents?
+                </a>
+                
+              </div>
+            </div>
+            
+          </details>
+        </article>
+        
+        <article class="slide" id="slide-S07" data-index="6">
+          <div class="slide-meta">
+            <div>
+              <span class="badge">S07 · 核心運作機制</span>
+              
+              <span class="badge badge-accent">學習目標 LO2</span>
+              
+              <span class="badge badge-accent">學習目標 LO3</span>
+              
+            </div>
+            <span style="font-family: var(--font-mono); font-size: 0.82rem; color: var(--muted);">
+              Slide 7 / 15
+            </span>
+          </div>
+
+          <h1 class="slide-title">Planning 與 Memory 深度拆解：從 CoT/ToT 到長短期記憶</h1>
+          
+          <p class="slide-subtitle">Agent 如何思考複雜問題？又如何避免「聊太長就忘記前面說過什麼」？</p>
+          
+
+          
+
+          
+
+          
+
+          <div class="bullets-list">
+            
+            <div class="bullet-card">
+              <div class="bullet-text">任務拆解（Task Decomposition）的兩大代表方法：Chain of Thought (CoT) 讓模型一步一步拆解推論；Tree of Thoughts (ToT) 則在每一步展開多個思考分支，透過 BFS/DFS 搜尋評估最佳路徑。</div>
+              <div class="bullet-citations">
+                <span style="color: var(--muted);">Wiki 對應段落：</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[planning#p-plan-2]]</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[src-02#p-src02-2]]</span>
+                
+                <span style="color: var(--muted); margin-left: 6px;">原始文獻：</span>
+                
+                
+                <a class="src-pill" href="https://lilianweng.github.io/posts/2023-06-23-agent/" target="_blank" rel="noopener noreferrer" title="LLM Powered Autonomous Agents">
+                  [src-02: LLM Powered Autonomous Age…]
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="bullet-card">
+              <div class="bullet-text">自我反思（Self-Reflection）如 ReAct 與 Reflexion 框架，讓 Agent 能檢視過去失敗的行動軌跡與環境回饋，在不更新模型權重的情況下動態修正下一輪計畫。</div>
+              <div class="bullet-citations">
+                <span style="color: var(--muted);">Wiki 對應段落：</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[planning#p-plan-4]]</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[src-02#p-src02-2]]</span>
+                
+                <span style="color: var(--muted); margin-left: 6px;">原始文獻：</span>
+                
+                
+                <a class="src-pill" href="https://lilianweng.github.io/posts/2023-06-23-agent/" target="_blank" rel="noopener noreferrer" title="LLM Powered Autonomous Agents">
+                  [src-02: LLM Powered Autonomous Age…]
+                </a>
+                
+                
+                <a class="src-pill" href="https://arxiv.org/abs/2210.03629" target="_blank" rel="noopener noreferrer" title="ReAct: Synergizing Reasoning and Acting in Language Models">
+                  [src-03: ReAct]
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="bullet-card">
+              <div class="bullet-text">短期記憶對應模型的 Context Window（受限於有限視窗長度）；長期記憶則透過外部向量儲存庫（FAISS/HNSW）或結構化雙向連結的 LLM Wiki 持久保存領域知識。</div>
+              <div class="bullet-citations">
+                <span style="color: var(--muted);">Wiki 對應段落：</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[memory#p-mem-1]]</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[memory#p-mem-2]]</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[memory#p-mem-3]]</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[memory#p-mem-4]]</span>
+                
+                <span style="color: var(--muted); margin-left: 6px;">原始文獻：</span>
+                
+                
+                <a class="src-pill" href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" title="Building Effective Agents">
+                  [src-01: Building Effective Agents]
+                </a>
+                
+                
+                <a class="src-pill" href="https://lilianweng.github.io/posts/2023-06-23-agent/" target="_blank" rel="noopener noreferrer" title="LLM Powered Autonomous Agents">
+                  [src-02: LLM Powered Autonomous Age…]
+                </a>
+                
+              </div>
+            </div>
+            
+          </div>
+
+          
+
+          <details class="evidence-drawer">
+            <summary>檢視本頁引用的 LLM Wiki 知識庫原文段落 (7 筆段落證據)</summary>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[planning#p-plan-2]] — Planning（規劃）：任務拆解與自我反思</div>
+              <div style="margin-top: 4px;">**Task Decomposition（任務拆解）** 的目標是將大問題拆解成較小、可管理的子目標（subgoals）：常見方法包括 **Chain of Thought (CoT，思考鏈)** 要求模型「一步一步思考（think step by step）」；以及 **Tree of Thoughts (ToT，思考樹)** 在每一步產生多個候選思考分支，透過廣度優先（BFS）或深度優先（DFS）搜尋並評估最佳路徑。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://lilianweng.github.io/posts/2023-06-23-agent/" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-02] LLM Powered Autonomous Agents
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[src-02#p-src02-2]] — LLM Powered Autonomous Agents (Lilian Weng, 2023)</div>
+              <div style="margin-top: 4px;">在 **[[planning|Planning（規劃）]]** 組件中，代理會先進行 **子目標與任務拆解（Task Decomposition）**，將複雜目標拆解成較小且可管理的子步驟（例如透過 Chain of Thought 逐步思考，或透過 Tree of Thoughts 在每個步驟展開多個思考分支並進行搜尋評估）；接著進行 **自我批評與反思（Self-Reflection）**，檢視過往行動紀錄與錯誤，動態修正後續計畫（代表作包括 [[react|ReAct]] 與 Reflexion）。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://lilianweng.github.io/posts/2023-06-23-agent/" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-02] LLM Powered Autonomous Agents
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[planning#p-plan-4]] — Planning（規劃）：任務拆解與自我反思</div>
+              <div style="margin-top: 4px;">**Self-Reflection（自我反思）** 則讓 Agent 具備從過去失敗或環境回饋中學習與修正的能力：最核心的代表是 **[[react|ReAct（Thought → Action → Observation）]]** 在每步動作後根據環境觀察調整計畫，以及 **Reflexion** 框架透過動態記憶與自我檢討文字回饋，在不更新模型權重的情況下改善下一輪決策。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://lilianweng.github.io/posts/2023-06-23-agent/" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-02] LLM Powered Autonomous Agents
+                </a>
+                
+                
+                <a href="https://arxiv.org/abs/2210.03629" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-03] ReAct: Synergizing Reasoning and Acting in Language Models
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[memory#p-mem-1]] — Memory（記憶系統）：短期上下文與長期外部知識庫</div>
+              <div style="margin-top: 4px;">[[src-02|Lilian Weng (2023)]] 將 [[ai-agent|AI Agent]] 的記憶機制對照人類心理學的記憶分類，分為感官記憶（Sensory Memory，對應文字或影像的 Embedding 嵌入向量表示）、**短期記憶（Short-term Memory）** 與 **長期記憶（Long-term Memory）**。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://lilianweng.github.io/posts/2023-06-23-agent/" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-02] LLM Powered Autonomous Agents
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[memory#p-mem-2]] — Memory（記憶系統）：短期上下文與長期外部知識庫</div>
+              <div style="margin-top: 4px;">**短期記憶（Short-term / Working Memory）** 直接對應大型語言模型的 **上下文學習（In-context Learning）**：所有當前對話紀錄、工具回傳的觀察結果與進行中的子任務狀態都放在 Context Window 內，直接受限於模型的上下文視窗長度上限（finite context window length）。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://lilianweng.github.io/posts/2023-06-23-agent/" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-02] LLM Powered Autonomous Agents
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[memory#p-mem-3]] — Memory（記憶系統）：短期上下文與長期外部知識庫</div>
+              <div style="margin-top: 4px;">**長期記憶（Long-term Memory）** 則是讓 Agent 在啟動時或執行過程中可以隨時查詢與寫入的 **外部持久儲存空間（External Persistent Storage）**，常見實作包含以近似最近鄰搜尋（ANN / MIPS，如 FAISS、HNSW）加速的外部向量資料庫，或是像本專案一樣由 LLM 結構化維護並建立雙向連結與 `index.md` 目錄的持久知識庫（LLM Wiki）。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-01] Building Effective Agents
+                </a>
+                
+                
+                <a href="https://lilianweng.github.io/posts/2023-06-23-agent/" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-02] LLM Powered Autonomous Agents
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[memory#p-mem-4]] — Memory（記憶系統）：短期上下文與長期外部知識庫</div>
+              <div style="margin-top: 4px;">結合短期與長期記憶，能讓 [[augmented-llm|Augmented LLM]] 在跨回合甚至跨工作階段（cross-session）中保留使用者偏好、歷史經驗與領域知識，避免每次詢問都從零開始重新推導。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-01] Building Effective Agents
+                </a>
+                
+                
+                <a href="https://lilianweng.github.io/posts/2023-06-23-agent/" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-02] LLM Powered Autonomous Agents
+                </a>
+                
+              </div>
+            </div>
+            
+          </details>
+        </article>
+        
+        <article class="slide" id="slide-S08" data-index="7">
+          <div class="slide-meta">
+            <div>
+              <span class="badge">S08 · 核心運作機制</span>
+              
+              <span class="badge badge-accent">學習目標 LO3</span>
+              
+            </div>
+            <span style="font-family: var(--font-mono); font-size: 0.82rem; color: var(--muted);">
+              Slide 8 / 15
+            </span>
+          </div>
+
+          <h1 class="slide-title">ReAct 迴圈：Thought → Action → Observation 邊想邊做</h1>
+          
+          <p class="slide-subtitle">為什麼光靠「一步一步思考（CoT）」還不夠？因為不查證外部事實就會產生幻覺！</p>
+          
+
+          
+          <div class="analogy-callout">
+            <strong>初學者直觀比喻：</strong>純 CoT 就像考試時閉著眼睛硬背答案，記錯一個數字後面全錯；ReAct 則是邊寫考卷邊翻閱參考書（Action: 查資料 → Observation: 讀到正確數據 → Thought: 繼續推論下一步）。
+          </div>
+          
+
+          
+
+          
+          <div class="diagram-box">
+            <pre>      ┌─────────────────────────────────────────────────────┐
+      │                  ReAct 閉環執行迴圈                  │
+      ▼                                                     │
+[ 1. Thought 思考 ] ──► [ 2. Action 行動 ] ──► [ 3. Observation 觀察 ]
+  拆解目標、分析現況        呼叫外部工具/API         取得環境回傳的真實資料
+  決定下一步要查什麼        Search / Lookup / SQL    寫入短期記憶供下一輪思考</pre>
+          </div>
+          
+
+          <div class="bullets-list">
+            
+            <div class="bullet-card">
+              <div class="bullet-text">純 Chain-of-Thought (CoT) 只靠模型內部參數進行封閉式推論，無法與外部世界互動，因此在多步推論中容易產生事實幻覺（Hallucination）並將錯誤一路傳播下去。</div>
+              <div class="bullet-citations">
+                <span style="color: var(--muted);">Wiki 對應段落：</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[react#p-react-2]]</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[src-03#p-src03-1]]</span>
+                
+                <span style="color: var(--muted); margin-left: 6px;">原始文獻：</span>
+                
+                
+                <a class="src-pill" href="https://arxiv.org/abs/2210.03629" target="_blank" rel="noopener noreferrer" title="ReAct: Synergizing Reasoning and Acting in Language Models">
+                  [src-03: ReAct]
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="bullet-card">
+              <div class="bullet-text">ReAct（Reasoning + Acting）讓模型交錯產生推論軌跡（Thought）與外部動作（Action），再從環境接收觀察結果（Observation），以真實外部證據導正後續推論。</div>
+              <div class="bullet-citations">
+                <span style="color: var(--muted);">Wiki 對應段落：</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[react#p-react-1]]</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[react#p-react-3]]</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[src-03#p-src03-2]]</span>
+                
+                <span style="color: var(--muted); margin-left: 6px;">原始文獻：</span>
+                
+                
+                <a class="src-pill" href="https://lilianweng.github.io/posts/2023-06-23-agent/" target="_blank" rel="noopener noreferrer" title="LLM Powered Autonomous Agents">
+                  [src-02: LLM Powered Autonomous Age…]
+                </a>
+                
+                
+                <a class="src-pill" href="https://arxiv.org/abs/2210.03629" target="_blank" rel="noopener noreferrer" title="ReAct: Synergizing Reasoning and Acting in Language Models">
+                  [src-03: ReAct]
+                </a>
+                
+                
+                <a class="src-pill" href="https://huggingface.co/learn/agents-course/unit1/what-are-agents" target="_blank" rel="noopener noreferrer" title="Hugging Face Agents Course — Unit 1: What are Agents?">
+                  [src-05: Hugging Face Agents Course]
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="bullet-card">
+              <div class="bullet-text">實證顯示，ReAct 在 HotPotQA 與 FEVER 克服了 CoT 的幻覺，並在 ALFWorld 與 WebShop 互動決策任務上相比模仿與強化學習基準分別取得 34% 與 10% 的絕對成功率提升。</div>
+              <div class="bullet-citations">
+                <span style="color: var(--muted);">Wiki 對應段落：</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[react#p-react-4]]</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[src-03#p-src03-4]]</span>
+                
+                <span style="color: var(--muted); margin-left: 6px;">原始文獻：</span>
+                
+                
+                <a class="src-pill" href="https://arxiv.org/abs/2210.03629" target="_blank" rel="noopener noreferrer" title="ReAct: Synergizing Reasoning and Acting in Language Models">
+                  [src-03: ReAct]
+                </a>
+                
+              </div>
+            </div>
+            
+          </div>
+
+          
+          <div class="quiz-box">
+            <div class="quiz-q">思考一下：如果一個 Agent 只會不斷呼叫工具（Action），卻沒有產生 Thought（思考軌跡），會發生什麼問題？</div>
+            <button class="btn" type="button" onclick="this.nextElementSibling.classList.toggle('open')">
+              點擊查看解答與解析
+            </button>
+            <div class="quiz-a">
+              <strong>解答：</strong>根據 Yao et al. (2022) 的 ReAct 論文，缺乏 Thought 的純 Acting 無法把高階目標拆解為子計畫、也無法在工作記憶中整理觀察到的異常，面對多步驟任務很容易陷入重複動作或迷失方向。
+            </div>
+          </div>
+          
+
+          <details class="evidence-drawer">
+            <summary>檢視本頁引用的 LLM Wiki 知識庫原文段落 (7 筆段落證據)</summary>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[react#p-react-2]] — ReAct（Reasoning + Acting）：邊想邊做的代理核心迴圈</div>
+              <div style="margin-top: 4px;">為什麼不能只用純 **Chain-of-Thought (CoT，思考鏈)**？[[src-03|ReAct 論文]] 指出，純 CoT 屬於「封閉式內部推論」，模型只靠自身參數憑空想像步驟，沒有與外部真實世界接觸，因此一旦中途記錯事實就會產生 **幻覺（Hallucination）** 並將錯誤一路向下傳播（error propagation）；相反地，純 Acting 缺乏高階推論規劃，容易在複雜環境中迷失方向。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://arxiv.org/abs/2210.03629" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-03] ReAct: Synergizing Reasoning and Acting in Language Models
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[src-03#p-src03-1]] — ReAct: Synergizing Reasoning and Acting in Language Models (Yao et al., 2022)</div>
+              <div style="margin-top: 4px;">過去的研究將語言模型的「推論（Reasoning，例如 Chain-of-Thought 思考鏈）」與「行動（Acting，例如產生動作指令）」視為兩個獨立主題。純 CoT 僅仰賴模型內部參數進行封閉推論，無法與外部世界互動，因此在多步推論中容易產生事實幻覺（hallucination）與錯誤傳播（error propagation）。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://arxiv.org/abs/2210.03629" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-03] ReAct: Synergizing Reasoning and Acting in Language Models
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[react#p-react-1]] — ReAct（Reasoning + Acting）：邊想邊做的代理核心迴圈</div>
+              <div style="margin-top: 4px;">由 [[src-03|Yao et al. (2022)]] 提出的 **ReAct（Reasoning + Acting）** 是現代 [[ai-agent|AI Agent]] 最核心的執行迴圈典範，它讓語言模型以交錯（interleaved）的方式循環執行三個步驟：**Thought（思考／推論）→ Action（呼叫工具或執行動作）→ Observation（從外部環境接收觀察結果）**。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://arxiv.org/abs/2210.03629" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-03] ReAct: Synergizing Reasoning and Acting in Language Models
+                </a>
+                
+                
+                <a href="https://huggingface.co/learn/agents-course/unit1/what-are-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-05] Hugging Face Agents Course — Unit 1: What are Agents?
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[react#p-react-3]] — ReAct（Reasoning + Acting）：邊想邊做的代理核心迴圈</div>
+              <div style="margin-top: 4px;">在 ReAct 的每一個循環中：**Thought（思考）** 負責拆解目標、追蹤進度、分析上一步的結果並決定下一步計畫（見 [[planning]]）；**Action（行動）** 負責呼叫外部 [[tool-use|工具或 API]]（例如 `Search[問題]` 或 `Lookup[關鍵字]`）；**Observation（觀察）** 則把外部工具回傳的真實資料寫入短期 [[memory|上下文記憶]]，讓下一輪的 Thought 有憑有據。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://lilianweng.github.io/posts/2023-06-23-agent/" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-02] LLM Powered Autonomous Agents
+                </a>
+                
+                
+                <a href="https://arxiv.org/abs/2210.03629" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-03] ReAct: Synergizing Reasoning and Acting in Language Models
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[src-03#p-src03-2]] — ReAct: Synergizing Reasoning and Acting in Language Models (Yao et al., 2022)</div>
+              <div style="margin-top: 4px;">**[[react|ReAct（Reasoning + Acting）]]** 讓大型語言模型以交錯（interleaved）的方式同時產生 **推論軌跡（Thought）** 與 **任務特定動作（Action）**，接著從外部環境或工具接收 **觀察結果（Observation）**，形成 `Thought → Action → Observation` 的閉環迴圈。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://arxiv.org/abs/2210.03629" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-03] ReAct: Synergizing Reasoning and Acting in Language Models
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[react#p-react-4]] — ReAct（Reasoning + Acting）：邊想邊做的代理核心迴圈</div>
+              <div style="margin-top: 4px;">實驗證明，ReAct 在 HotPotQA 與 FEVER 等知識密集問答任務中透過查詢 Wikipedia API 顯著降低了幻覺；在 ALFWorld 家務互動與 WebShop 線上購物任務中，相比強化學習與模仿學習基準分別提升了 **34%** 與 **10%** 的絕對成功率，同時因為每一步都有明文 Thought 軌跡，人類工程師能輕易讀懂並除錯 Agent 的決策過程。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://arxiv.org/abs/2210.03629" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-03] ReAct: Synergizing Reasoning and Acting in Language Models
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[src-03#p-src03-4]] — ReAct: Synergizing Reasoning and Acting in Language Models (Yao et al., 2022)</div>
+              <div style="margin-top: 4px;">在實驗驗證中，ReAct 在知識密集推論基準（HotPotQA 多跳問答、FEVER 事實查核）上透過與簡單 Wikipedia API 互動，有效克服了純 CoT 的幻覺問題；在互動決策基準（ALFWorld 文字遊戲與 WebShop 線上購物環境）上，僅用 1 到 2 個上下文範例就顯著超越模仿學習與強化學習方法，在 ALFWorld 與 WebShop 分別取得 34% 與 10% 的絕對成功率提升，且具備極高的人類可解釋性與可除錯性。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://arxiv.org/abs/2210.03629" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-03] ReAct: Synergizing Reasoning and Acting in Language Models
+                </a>
+                
+              </div>
+            </div>
+            
+          </details>
+        </article>
+        
+        <article class="slide" id="slide-S09" data-index="8">
+          <div class="slide-meta">
+            <div>
+              <span class="badge">S09 · 系統架構與模式</span>
+              
+              <span class="badge badge-accent">學習目標 LO4</span>
+              
+            </div>
+            <span style="font-family: var(--font-mono); font-size: 0.82rem; color: var(--muted);">
+              Slide 9 / 15
+            </span>
+          </div>
+
+          <h1 class="slide-title">關鍵架構分野：Workflow（工作流）vs Agent（自主代理）</h1>
+          
+          <p class="slide-subtitle">Anthropic 在《Building Effective Agents》中最重要的工程定義</p>
+          
+
+          
+
+          
+          <div class="comparison-grid">
+            
+            <div class="comp-col">
+              <h4>Workflows（確定性工作流）</h4>
+              <p style="margin: 0; font-size: 0.92rem;">透過預先寫好的程式碼路徑（predefined code paths）編排 LLM 與工具。步驟順序與檢查點固定，可預測性高、成本與延遲較低。</p>
+            </div>
+            
+            <div class="comp-col">
+              <h4>Agents（自主代理）</h4>
+              <p style="margin: 0; font-size: 0.92rem;">由 LLM 自行動態決定流程（dynamically direct their own processes）與工具使用。彈性極高，適合無法事先預知步驟數量的開放式任務。</p>
+            </div>
+            
+          </div>
+          
+
+          
+
+          <div class="bullets-list">
+            
+            <div class="bullet-card">
+              <div class="bullet-text">Anthropic 將廣義的代理型系統分為兩類：Workflows 是由工程師預先定義的程式碼路徑來編排 LLM 與工具；Agents 則是由 LLM 自己動態指揮流程與工具使用。</div>
+              <div class="bullet-citations">
+                <span style="color: var(--muted);">Wiki 對應段落：</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[workflow-vs-agent#p-wva-1]]</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[workflow-vs-agent#p-wva-2]]</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[workflow-vs-agent#p-wva-3]]</span>
+                
+                <span style="color: var(--muted); margin-left: 6px;">原始文獻：</span>
+                
+                
+                <a class="src-pill" href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" title="Building Effective Agents">
+                  [src-01: Building Effective Agents]
+                </a>
+                
+                
+                <a class="src-pill" href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf" target="_blank" rel="noopener noreferrer" title="A Practical Guide to Building Agents">
+                  [src-04: A Practical Guide to Build…]
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="bullet-card">
+              <div class="bullet-text">本作業產生教學簡報的 Pipeline（取得資料 → Ingest → 查詢 Wiki → 大綱 → 撰寫 → 檢查迴圈）本身就是一條帶有條件檢查與局部重試迴圈的結構化 Graph Workflow！</div>
+              <div class="bullet-citations">
+                <span style="color: var(--muted);">Wiki 對應段落：</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[workflow-vs-agent#p-wva-2]]</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[workflow-patterns#p-wf-6]]</span>
+                
+                <span style="color: var(--muted); margin-left: 6px;">原始文獻：</span>
+                
+                
+                <a class="src-pill" href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" title="Building Effective Agents">
+                  [src-01: Building Effective Agents]
+                </a>
+                
+              </div>
+            </div>
+            
+          </div>
+
+          
+
+          <details class="evidence-drawer">
+            <summary>檢視本頁引用的 LLM Wiki 知識庫原文段落 (4 筆段落證據)</summary>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[workflow-vs-agent#p-wva-1]] — Workflow vs Agent：確定性工作流與自主代理的差異及自主性光譜</div>
+              <div style="margin-top: 4px;">[[src-01|Anthropic《Building Effective Agents》]] 對「Agentic Systems（廣義代理系統）」做出了業界最重要的架構區分，將其分為 **Workflows（工作流）** 與 **Agents（自主代理）** 兩大類。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-01] Building Effective Agents
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[workflow-vs-agent#p-wva-2]] — Workflow vs Agent：確定性工作流與自主代理的差異及自主性光譜</div>
+              <div style="margin-top: 4px;">**Workflows（工作流）** 是指「透過預先寫好的程式碼路徑（predefined code paths）來編排 LLM 與外部工具」的系統；步驟順序、分支條件與檢查點都由工程師在程式碼中固定，具備高度可預測性與穩定性，適合步驟清楚、結構固定的任務（參見 [[workflow-patterns]]）。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-01] Building Effective Agents
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[workflow-vs-agent#p-wva-3]] — Workflow vs Agent：確定性工作流與自主代理的差異及自主性光譜</div>
+              <div style="margin-top: 4px;">**Agents（自主代理）** 則是指「由 LLM 自己動態決定流程（dynamically direct their own processes）與工具使用方式」的系統；模型會根據每一步環境回傳的觀察結果（如 [[react|ReAct 迴圈]]），自主決定要執行幾輪迴圈、下一步呼叫哪個 [[tool-use|工具]]、以及何時判定任務完成或請求人類介入。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-01] Building Effective Agents
+                </a>
+                
+                
+                <a href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-04] A Practical Guide to Building Agents
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[workflow-patterns#p-wf-6]] — 5 種常見 Workflow 設計模式（Anthropic Composable Patterns）</div>
+              <div style="margin-top: 4px;">模式五 **Evaluator-Optimizer（評估者－優化者迴圈）**：由一個 **Generator LLM** 產生初稿，交給另一個 **Evaluator LLM** 依據明確標準進行評分與具體修改建議，若未達標則進入迴圈重新修正（這正是本作業建立 LLM Wiki 並透過 C2～C6 檢查節點反覆局部重新生成教學簡報所採用的核心模式）。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-01] Building Effective Agents
+                </a>
+                
+              </div>
+            </div>
+            
+          </details>
+        </article>
+        
+        <article class="slide" id="slide-S10" data-index="9">
+          <div class="slide-meta">
+            <div>
+              <span class="badge">S10 · 系統架構與模式</span>
+              
+              <span class="badge badge-accent">學習目標 LO4</span>
+              
+            </div>
+            <span style="font-family: var(--font-mono); font-size: 0.82rem; color: var(--muted);">
+              Slide 10 / 15
+            </span>
+          </div>
+
+          <h1 class="slide-title">Anthropic 的 5 種可組合 Workflow 設計模式</h1>
+          
+          <p class="slide-subtitle">實務上 80% 以上的生產需求，用這 5 種簡單模式組合就能穩定解決</p>
+          
+
+          
+
+          
+
+          
+
+          <div class="bullets-list">
+            
+            <div class="bullet-card">
+              <div class="bullet-text">1. Prompt Chaining（提示串接）與 2. Routing（路由分流）：前者將任務拆成固定序列步驟並在中間插入程式檢查門檻（Gate）；後者將輸入分類並導向專門的下游提示詞或模型。</div>
+              <div class="bullet-citations">
+                <span style="color: var(--muted);">Wiki 對應段落：</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[workflow-patterns#p-wf-1]]</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[workflow-patterns#p-wf-2]]</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[workflow-patterns#p-wf-3]]</span>
+                
+                <span style="color: var(--muted); margin-left: 6px;">原始文獻：</span>
+                
+                
+                <a class="src-pill" href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" title="Building Effective Agents">
+                  [src-01: Building Effective Agents]
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="bullet-card">
+              <div class="bullet-text">3. Parallelization（平行化）：包含把任務切成獨立子塊平行執行的 Sectioning（例如一邊生成回答、一邊做安全審查），以及多次執行取多數決的 Voting。</div>
+              <div class="bullet-citations">
+                <span style="color: var(--muted);">Wiki 對應段落：</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[workflow-patterns#p-wf-4]]</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[src-01#p-src01-4]]</span>
+                
+                <span style="color: var(--muted); margin-left: 6px;">原始文獻：</span>
+                
+                
+                <a class="src-pill" href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" title="Building Effective Agents">
+                  [src-01: Building Effective Agents]
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="bullet-card">
+              <div class="bullet-text">4. Orchestrator-Workers（協調者－工兵）與 5. Evaluator-Optimizer（評估－優化迴圈）：前者由中央模型動態拆解子任務分派給工兵；後者由生成模型與評估模型在迴圈中反覆檢查與修正。</div>
+              <div class="bullet-citations">
+                <span style="color: var(--muted);">Wiki 對應段落：</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[workflow-patterns#p-wf-5]]</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[workflow-patterns#p-wf-6]]</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[src-01#p-src01-4]]</span>
+                
+                <span style="color: var(--muted); margin-left: 6px;">原始文獻：</span>
+                
+                
+                <a class="src-pill" href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" title="Building Effective Agents">
+                  [src-01: Building Effective Agents]
+                </a>
+                
+              </div>
+            </div>
+            
+          </div>
+
+          
+
+          <details class="evidence-drawer">
+            <summary>檢視本頁引用的 LLM Wiki 知識庫原文段落 (7 筆段落證據)</summary>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[workflow-patterns#p-wf-1]] — 5 種常見 Workflow 設計模式（Anthropic Composable Patterns）</div>
+              <div style="margin-top: 4px;">在打造代理型系統時，[[src-01|Anthropic (2024)]] 總結出五種以 [[augmented-llm|Augmented LLM]] 為積木、最常在生產環境使用的可組合 [[workflow-vs-agent|Workflow]] 設計模式（Composable Patterns）。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-01] Building Effective Agents
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[workflow-patterns#p-wf-2]] — 5 種常見 Workflow 設計模式（Anthropic Composable Patterns）</div>
+              <div style="margin-top: 4px;">模式一 **Prompt Chaining（提示串接）**：將一個任務拆成固定順序的多個步驟，前一步 LLM 的輸出成為下一步 LLM 的輸入，並且可以在任兩步中間插入程式化的檢查門檻（Programmatic Gate）以驗證格式或品質（例如先產生行銷文案大綱 → 檢查是否合規 → 撰寫正式文案 → 翻譯成多國語言）。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-01] Building Effective Agents
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[workflow-patterns#p-wf-3]] — 5 種常見 Workflow 設計模式（Anthropic Composable Patterns）</div>
+              <div style="margin-top: 4px;">模式二 **Routing（路由分流）**：先由一個分類器或輕量 LLM 判斷輸入屬於哪一種類型，再將其分發給專門為該類型最佳化的下游提示詞、工具或不同尺寸的模型（例如把一般常見客服問題導向快速的 Haiku/Flash 模型，把複雜技術問題或退費申請導向推理模型或專門流程）。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-01] Building Effective Agents
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[workflow-patterns#p-wf-4]] — 5 種常見 Workflow 設計模式（Anthropic Composable Patterns）</div>
+              <div style="margin-top: 4px;">模式三 **Parallelization（平行化）**：同時啟動多個 LLM 呼叫再以程式彙整結果，包含兩種變體——**Sectioning（切分）** 將任務切成獨立子任務平行處理（例如一個模型負責產生回答，另一個模型同時做 [[guardrails|安全護欄審查]]），以及 **Voting（投票）** 對同一問題跑多次推論再取多數決以提升準確率（例如程式碼安全漏洞掃描）。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-01] Building Effective Agents
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[src-01#p-src01-4]] — Building Effective Agents (Anthropic, 2024)</div>
+              <div style="margin-top: 4px;">Anthropic 歸納出五種高頻使用的 [[workflow-patterns|Workflow 設計模式]]：(1) **Prompt Chaining**（將任務拆為固定序列步驟並在中間插入程式檢查門檻 Gate）；(2) **Routing**（將輸入分類並導向專門的下游提示或模型）；(3) **Parallelization**（包含切割子任務平行執行的 Sectioning，以及多次執行取共識的 Voting）；(4) **Orchestrator-Workers**（由中央協調模型動態拆解子任務分派給工兵模型）；(5) **Evaluator-Optimizer**（一個模型負責生成，另一個模型在迴圈中負責評估並給出修正回饋）。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-01] Building Effective Agents
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[workflow-patterns#p-wf-5]] — 5 種常見 Workflow 設計模式（Anthropic Composable Patterns）</div>
+              <div style="margin-top: 4px;">模式四 **Orchestrator-Workers（協調者－工兵模式）**：當所需的子任務無法事先寫死時（例如跨多個檔案修改程式碼或進行多源深入研究），由一個中央 **Orchestrator（協調者 LLM）** 根據輸入動態拆解子任務並分派給多個 **Workers（工兵 LLM）**，最後再由協調者彙整所有工兵的輸出。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-01] Building Effective Agents
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[workflow-patterns#p-wf-6]] — 5 種常見 Workflow 設計模式（Anthropic Composable Patterns）</div>
+              <div style="margin-top: 4px;">模式五 **Evaluator-Optimizer（評估者－優化者迴圈）**：由一個 **Generator LLM** 產生初稿，交給另一個 **Evaluator LLM** 依據明確標準進行評分與具體修改建議，若未達標則進入迴圈重新修正（這正是本作業建立 LLM Wiki 並透過 C2～C6 檢查節點反覆局部重新生成教學簡報所採用的核心模式）。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-01] Building Effective Agents
+                </a>
+                
+              </div>
+            </div>
+            
+          </details>
+        </article>
+        
+        <article class="slide" id="slide-S11" data-index="10">
+          <div class="slide-meta">
+            <div>
+              <span class="badge">S11 · 工具與生態系</span>
+              
+              <span class="badge badge-accent">學習目標 LO2</span>
+              
+              <span class="badge badge-accent">學習目標 LO5</span>
+              
+            </div>
+            <span style="font-family: var(--font-mono); font-size: 0.82rem; color: var(--muted);">
+              Slide 11 / 15
+            </span>
+          </div>
+
+          <h1 class="slide-title">Tool Use 三大分類與 MCP（AI 應用的 USB-C 標準介面）</h1>
+          
+          <p class="slide-subtitle">Agent 如何安全、標準化地連接資料庫、本地檔案與上百種外部 SaaS 工具？</p>
+          
+
+          
+          <div class="analogy-callout">
+            <strong>初學者直觀比喻：</strong>以前每個 AI 軟體要接 Google Drive、Slack、GitHub，就像每家手機廠都用自己的充電線（N×M 條線）；MCP 就是統一的 USB-C 插孔，任何 AI Host 只要支援 MCP，就能直接插上任何 MCP Server 工具。
+          </div>
+          
+
+          
+
+          
+          <div class="diagram-box">
+            <pre>MCP (Model Context Protocol) 三層架構：
+┌────────────────────────────────────────────────────────────┐
+│ MCP Host (Claude Desktop / AI IDE / Agent 應用程式)         │
+│   ├── MCP Client A ◄──(1:1 標準協議)──► MCP Server A (本地檔案/DB) │
+│   └── MCP Client B ◄──(1:1 標準協議)──► MCP Server B (GitHub/Slack)│
+└────────────────────────────────────────────────────────────┘</pre>
+          </div>
+          
+
+          <div class="bullets-list">
+            
+            <div class="bullet-card">
+              <div class="bullet-text">OpenAI 將 Agent 工具分為三大類：Data tools（查詢資料庫、RAG 檢索、讀檔）、Action tools（寄信、更新 CRM、執行交易）與 Orchestration tools（呼叫其他子代理）。</div>
+              <div class="bullet-citations">
+                <span style="color: var(--muted);">Wiki 對應段落：</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[tool-use#p-tool-2]]</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[src-04#p-src04-3]]</span>
+                
+                <span style="color: var(--muted); margin-left: 6px;">原始文獻：</span>
+                
+                
+                <a class="src-pill" href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf" target="_blank" rel="noopener noreferrer" title="A Practical Guide to Building Agents">
+                  [src-04: A Practical Guide to Build…]
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="bullet-card">
+              <div class="bullet-text">Anthropic 強調設計工具介面（Agent-Computer Interface, ACI）應像設計人類 UI 一樣用心：寫清楚參數說明、邊界條件與範例，做好防呆設計（poka-yoke）。</div>
+              <div class="bullet-citations">
+                <span style="color: var(--muted);">Wiki 對應段落：</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[tool-use#p-tool-4]]</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[src-01#p-src01-4]]</span>
+                
+                <span style="color: var(--muted); margin-left: 6px;">原始文獻：</span>
+                
+                
+                <a class="src-pill" href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" title="Building Effective Agents">
+                  [src-01: Building Effective Agents]
+                </a>
+                
+                
+                <a class="src-pill" href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf" target="_blank" rel="noopener noreferrer" title="A Practical Guide to Building Agents">
+                  [src-04: A Practical Guide to Build…]
+                </a>
+                
+                
+                <a class="src-pill" href="https://modelcontextprotocol.io/introduction" target="_blank" rel="noopener noreferrer" title="Model Context Protocol (MCP) — Introduction">
+                  [src-06: Model Context Protocol (MCP)]
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="bullet-card">
+              <div class="bullet-text">Model Context Protocol (MCP) 以「AI 應用的 USB-C」標準化 Host、Client 與 Server 通訊，將 N 個模型與 M 個工具的整合複雜度從 N×M 降為 N+M。</div>
+              <div class="bullet-citations">
+                <span style="color: var(--muted);">Wiki 對應段落：</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[mcp#p-mcp-1]]</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[mcp#p-mcp-2]]</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[mcp#p-mcp-3]]</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[src-06#p-src06-3]]</span>
+                
+                <span style="color: var(--muted); margin-left: 6px;">原始文獻：</span>
+                
+                
+                <a class="src-pill" href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" title="Building Effective Agents">
+                  [src-01: Building Effective Agents]
+                </a>
+                
+                
+                <a class="src-pill" href="https://modelcontextprotocol.io/introduction" target="_blank" rel="noopener noreferrer" title="Model Context Protocol (MCP) — Introduction">
+                  [src-06: Model Context Protocol (MCP)]
+                </a>
+                
+              </div>
+            </div>
+            
+          </div>
+
+          
+
+          <details class="evidence-drawer">
+            <summary>檢視本頁引用的 LLM Wiki 知識庫原文段落 (8 筆段落證據)</summary>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[tool-use#p-tool-2]] — Tool Use（工具使用）：賦予語言模型雙手與感官</div>
+              <div style="margin-top: 4px;">根據 [[src-04|OpenAI《A Practical Guide to Building Agents》]]，實務上為 Agent 配置的工具可清楚分為三大類型：(1) **Data tools（資料型工具）**，負責讀取與檢索上下文資訊，如查詢 SQL 資料庫、讀取 PDF、RAG 知識庫檢索或網頁搜尋；(2) **Action tools（動作型工具）**，負責與外部系統互動並改變狀態，如發送 Email、建立行事曆事件、更新 CRM 紀錄或執行退費；(3) **Orchestration tools（編排型工具）**，把另一個專職的 [[multi-agent|子代理（Sub-agent）]] 當作工具來呼叫。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-04] A Practical Guide to Building Agents
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[src-04#p-src04-3]] — A Practical Guide to Building Agents (OpenAI, 2025)</div>
+              <div style="margin-top: 4px;">在 [[tool-use|工具設計]] 上，OpenAI 將代理所需的工具歸為三大類：**Data tools**（查詢資料庫、讀取 PDF、網頁搜尋或 RAG 檢索以取得背景資訊）、**Action tools**（寄送 Email、更新 CRM 紀錄、呼叫外部服務執行變更動作）、以及 **Orchestration tools**（把其他專門的 Agent 當作工具來呼叫）。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-04] A Practical Guide to Building Agents
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[tool-use#p-tool-4]] — Tool Use（工具使用）：賦予語言模型雙手與感官</div>
+              <div style="margin-top: 4px;">[[src-01|Anthropic (2024)]] 特別提醒工程師：**花在設計工具介面（Agent-Computer Interface, ACI）的心力應該與設計人類 UI 一樣多**——要為每個工具撰寫極度清楚的參數說明、邊界條件與範例，進行防呆設計（poka-yoke），並可透過 [[mcp|Model Context Protocol (MCP)]] 標準化工具連接與透過 [[guardrails|Guardrails]] 對高風險動作工具進行權限控管。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-01] Building Effective Agents
+                </a>
+                
+                
+                <a href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-04] A Practical Guide to Building Agents
+                </a>
+                
+                
+                <a href="https://modelcontextprotocol.io/introduction" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-06] Model Context Protocol (MCP) — Introduction
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[src-01#p-src01-4]] — Building Effective Agents (Anthropic, 2024)</div>
+              <div style="margin-top: 4px;">Anthropic 歸納出五種高頻使用的 [[workflow-patterns|Workflow 設計模式]]：(1) **Prompt Chaining**（將任務拆為固定序列步驟並在中間插入程式檢查門檻 Gate）；(2) **Routing**（將輸入分類並導向專門的下游提示或模型）；(3) **Parallelization**（包含切割子任務平行執行的 Sectioning，以及多次執行取共識的 Voting）；(4) **Orchestrator-Workers**（由中央協調模型動態拆解子任務分派給工兵模型）；(5) **Evaluator-Optimizer**（一個模型負責生成，另一個模型在迴圈中負責評估並給出修正回饋）。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-01] Building Effective Agents
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[mcp#p-mcp-1]] — MCP（Model Context Protocol）：AI 應用的 USB-C 工具標準介面</div>
+              <div style="margin-top: 4px;">**Model Context Protocol (MCP)** 是由 [[src-06|Anthropic 開源的開放標準協議]]，專門用來統一應用程式如何向大型語言模型提供外部上下文資料（Context）與 [[tool-use|工具呼叫能力]]。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://modelcontextprotocol.io/introduction" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-06] Model Context Protocol (MCP) — Introduction
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[mcp#p-mcp-2]] — MCP（Model Context Protocol）：AI 應用的 USB-C 工具標準介面</div>
+              <div style="margin-top: 4px;">官方以 **「AI 應用程式的 USB-C 連接埠」** 來比喻 MCP：在沒有 MCP 之前，如果世界上有 $N$ 個 AI 應用（IDE、聊天介面、Agent 框架）想要連接 $M$ 個外部系統（Google Drive、Slack、GitHub、PostgreSQL），社群必須重複撰寫 $N \times M$ 套客製化連接器；透過 MCP 標準協議，每個工具只需實作一次 MCP Server，所有支援 MCP 的 AI 應用就能直接插上使用，將整合複雜度降為 $N + M$。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://modelcontextprotocol.io/introduction" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-06] Model Context Protocol (MCP) — Introduction
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[mcp#p-mcp-3]] — MCP（Model Context Protocol）：AI 應用的 USB-C 工具標準介面</div>
+              <div style="margin-top: 4px;">MCP 的運作建立在清晰的 **Host / Client / Server 三層架構** 之上：(1) **MCP Hosts** 是需要透過 MCP 取得資料或呼叫工具的 AI 應用程式（如 Claude Desktop、AI 程式碼編輯器或 [[ai-agent|Agent]] 系統）；(2) **MCP Clients** 內嵌於 Host 之中，負責與特定的 Server 維持一對一（1:1）的雙向協議連線；(3) **MCP Servers** 則是輕量級服務程式，負責將本地資料源（Local Data Sources，如本機檔案、SQLite 資料庫）或遠端服務（Remote Services，如外部 REST API）封裝成標準的 Resources、Tools 與 Prompts 供模型安全調用。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://modelcontextprotocol.io/introduction" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-06] Model Context Protocol (MCP) — Introduction
+                </a>
+                
+                
+                <a href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-01] Building Effective Agents
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[src-06#p-src06-3]] — Model Context Protocol (MCP) — Introduction (2024)</div>
+              <div style="margin-top: 4px;">MCP 採用清晰的 **Client-Server 三層架構**：(1) **MCP Hosts** 是發起連線的 AI 應用程式（如 Claude Desktop、AI IDE 或各類 Agent 執行環境）；(2) **MCP Clients** 位於 Host 內部，負責與單一 Server 維持 1:1 的協議連線；(3) **MCP Servers** 是輕量級程式，透過標準化的 MCP 協議暴露特定能力（Tools、Resources、Prompts），並安全存取本地資料源（Local Data Sources，如本機檔案、資料庫）或遠端服務（Remote Services，如 Slack、GitHub 等 Web API）。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://modelcontextprotocol.io/introduction" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-06] Model Context Protocol (MCP) — Introduction
+                </a>
+                
+              </div>
+            </div>
+            
+          </details>
+        </article>
+        
+        <article class="slide" id="slide-S12" data-index="11">
+          <div class="slide-meta">
+            <div>
+              <span class="badge">S12 · 多代理協作</span>
+              
+              <span class="badge badge-accent">學習目標 LO5</span>
+              
+            </div>
+            <span style="font-family: var(--font-mono); font-size: 0.82rem; color: var(--muted);">
+              Slide 12 / 15
+            </span>
+          </div>
+
+          <h1 class="slide-title">單一代理 vs 多代理系統 (Multi-Agent)：Manager 與 Handoff</h1>
+          
+          <p class="slide-subtitle">什麼時候一個 Agent 不夠用，需要組一支 Agent 團隊？</p>
+          
+
+          
+
+          
+          <div class="comparison-grid">
+            
+            <div class="comp-col">
+              <h4>Manager Pattern（經理中央調度）</h4>
+              <p style="margin: 0; font-size: 0.92rem;">由一個中央 Manager Agent 保有對話控制權，把專職子代理當作工具（Agents as Tools）在幕後呼叫並彙整結果。</p>
+            </div>
+            
+            <div class="comp-col">
+              <h4>Decentralized Pattern（去中心化交棒）</h4>
+              <p style="margin: 0; font-size: 0.92rem;">多個平輩代理透過 Handoff（單向控制權移交），由分流代理直接把整個對話狀態交棒給專職代理（如退貨代理）接手。</p>
+            </div>
+            
+          </div>
+          
+
+          
+
+          <div class="bullets-list">
+            
+            <div class="bullet-card">
+              <div class="bullet-text">OpenAI 的黃金原則是「永遠先從單一代理（Single-agent）開始」；只有當提示詞塞滿複雜條件分支、或掛載太多重疊工具導致常選錯工具（Tool overload）時，才拆分為多代理系統。</div>
+              <div class="bullet-citations">
+                <span style="color: var(--muted);">Wiki 對應段落：</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[multi-agent#p-ma-1]]</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[multi-agent#p-ma-2]]</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[src-04#p-src04-4]]</span>
+                
+                <span style="color: var(--muted); margin-left: 6px;">原始文獻：</span>
+                
+                
+                <a class="src-pill" href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf" target="_blank" rel="noopener noreferrer" title="A Practical Guide to Building Agents">
+                  [src-04: A Practical Guide to Build…]
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="bullet-card">
+              <div class="bullet-text">多代理有兩大協作拓樸：Manager Pattern 由中央經理透過工具呼叫調度子代理（呼應 Anthropic 的 Orchestrator-Workers）；Decentralized Pattern 則透過 Handoff 直接移交控制權。</div>
+              <div class="bullet-citations">
+                <span style="color: var(--muted);">Wiki 對應段落：</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[multi-agent#p-ma-3]]</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[multi-agent#p-ma-4]]</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[src-04#p-src04-4]]</span>
+                
+                <span style="color: var(--muted); margin-left: 6px;">原始文獻：</span>
+                
+                
+                <a class="src-pill" href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" title="Building Effective Agents">
+                  [src-01: Building Effective Agents]
+                </a>
+                
+                
+                <a class="src-pill" href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf" target="_blank" rel="noopener noreferrer" title="A Practical Guide to Building Agents">
+                  [src-04: A Practical Guide to Build…]
+                </a>
+                
+                
+                <a class="src-pill" href="https://huggingface.co/learn/agents-course/unit1/what-are-agents" target="_blank" rel="noopener noreferrer" title="Hugging Face Agents Course — Unit 1: What are Agents?">
+                  [src-05: Hugging Face Agents Course]
+                </a>
+                
+              </div>
+            </div>
+            
+          </div>
+
+          
+
+          <details class="evidence-drawer">
+            <summary>檢視本頁引用的 LLM Wiki 知識庫原文段落 (5 筆段落證據)</summary>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[multi-agent#p-ma-1]] — Multi-Agent Systems（多代理系統）：單一代理優先與兩大協作拓樸</div>
+              <div style="margin-top: 4px;">在設計 [[ai-agent|AI Agent]] 時，[[src-04|OpenAI《A Practical Guide to Building Agents》]] 提出的黃金法則是：**永遠先從單一代理（Single-agent system）開始**，透過逐步增加 [[tool-use|工具]] 與結構化指令來擴充能力，而不是一開始就建立複雜的多代理網路。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-04] A Practical Guide to Building Agents
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[multi-agent#p-ma-2]] — Multi-Agent Systems（多代理系統）：單一代理優先與兩大協作拓樸</div>
+              <div style="margin-top: 4px;">什麼時候才需要把單一代理拆分成 **Multi-Agent System（多代理系統）**？[[src-04|OpenAI (2025)]] 指出兩個明確訊號：(1) **複雜指令與多重分支（Complex logic）**：當單一提示詞塞滿太多條件分支與例外規則，導致模型難以穩定遵守時；(2) **工具過載（Tool overload）**：當單一代理掛載了太多名稱、參數或功能重疊的工具，即使改善工具說明仍常選錯工具時。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-04] A Practical Guide to Building Agents
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[src-04#p-src04-4]] — A Practical Guide to Building Agents (OpenAI, 2025)</div>
+              <div style="margin-top: 4px;">在系統拓樸上，OpenAI 建議先最大化單一代理（Single-agent system）的能力，當指令過於複雜或工具過多導致容易選錯時，再拆分為 **[[multi-agent|多代理系統（Multi-agent system）]]**。多代理有兩種主要設計模式：**Manager pattern（經理模式）** 由一個中央 Manager 代理透過工具呼叫指揮多個專職子代理並保有對話控制權；**Decentralized pattern（去中心化模式）** 則是多個平輩代理透過 **Handoff（單向移交）** 將執行與對話控制權直接交棒給最適合的專職代理。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-04] A Practical Guide to Building Agents
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[multi-agent#p-ma-3]] — Multi-Agent Systems（多代理系統）：單一代理優先與兩大協作拓樸</div>
+              <div style="margin-top: 4px;">多代理系統在架構上主要分為兩種協作拓樸：第一種是 **Manager Pattern（經理／中央調度模式，又稱 Agents as Tools）**，由一個中央 Manager Agent 掌握與使用者的對話控制權，並透過編排型工具（Orchestration tools）在幕後呼叫多個專職子代理（如翻譯代理、研究代理、帳務代理）後彙整回答，這與 [[src-01|Anthropic 的 Orchestrator-Workers 模式]] 相呼應。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-04] A Practical Guide to Building Agents
+                </a>
+                
+                
+                <a href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-01] Building Effective Agents
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[multi-agent#p-ma-4]] — Multi-Agent Systems（多代理系統）：單一代理優先與兩大協作拓樸</div>
+              <div style="margin-top: 4px;">第二種是 **Decentralized Pattern（去中心化／平輩交棒模式）**，多個專職代理處於平等地位，當負責初步分流的 Triage Agent 判斷問題屬於「訂單退換貨」或「技術維修」時，會執行 **Handoff（單向控制權移交）**，把整段對話狀態與後續主導權直接交棒給該領域的專職代理接手與使用者互動。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-04] A Practical Guide to Building Agents
+                </a>
+                
+                
+                <a href="https://huggingface.co/learn/agents-course/unit1/what-are-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-05] Hugging Face Agents Course — Unit 1: What are Agents?
+                </a>
+                
+              </div>
+            </div>
+            
+          </details>
+        </article>
+        
+        <article class="slide" id="slide-S13" data-index="12">
+          <div class="slide-meta">
+            <div>
+              <span class="badge">S13 · 工程決策與落地</span>
+              
+              <span class="badge badge-accent">學習目標 LO6</span>
+              
+            </div>
+            <span style="font-family: var(--font-mono); font-size: 0.82rem; color: var(--muted);">
+              Slide 13 / 15
+            </span>
+          </div>
+
+          <h1 class="slide-title">何時該用（與不該用）AI Agent？三大適用判準與成本權衡</h1>
+          
+          <p class="slide-subtitle">不要拿大砲打小鳥：先評估任務是否符合這三個高價值判準</p>
+          
+
+          
+
+          
+
+          
+
+          <div class="bullets-list">
+            
+            <div class="bullet-card">
+              <div class="bullet-text">Anthropic 強調應優先採用最簡單的解決方案（單次 LLM 呼叫或確定性 Workflow），因為自主 Agent 是以較高的延遲（Latency）、Token 成本與錯誤累積風險來換取開放式任務表現。</div>
+              <div class="bullet-citations">
+                <span style="color: var(--muted);">Wiki 對應段落：</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[when-to-use-agents#p-wtu-1]]</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[src-01#p-src01-5]]</span>
+                
+                <span style="color: var(--muted); margin-left: 6px;">原始文獻：</span>
+                
+                
+                <a class="src-pill" href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" title="Building Effective Agents">
+                  [src-01: Building Effective Agents]
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="bullet-card">
+              <div class="bullet-text">OpenAI 提出最適合導入 Agent 的三大判準：(1) 需要情境權衡與例外處理的複雜決策（如客服退費審核）；(2) 傳統 if-else 規則過於龐大脆弱難維護（如資安審查）；(3) 高度依賴非結構化自然語言或文件資料（如保險理賠）。</div>
+              <div class="bullet-citations">
+                <span style="color: var(--muted);">Wiki 對應段落：</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[when-to-use-agents#p-wtu-2]]</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[src-04#p-src04-2]]</span>
+                
+                <span style="color: var(--muted); margin-left: 6px;">原始文獻：</span>
+                
+                
+                <a class="src-pill" href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf" target="_blank" rel="noopener noreferrer" title="A Practical Guide to Building Agents">
+                  [src-04: A Practical Guide to Build…]
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="bullet-card">
+              <div class="bullet-text">反之，若任務步驟完全固定可預測、輸入高度結構化，或對延遲極度敏感，則應使用確定性程式碼或 Workflow，而非開放式自主 Agent。</div>
+              <div class="bullet-citations">
+                <span style="color: var(--muted);">Wiki 對應段落：</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[when-to-use-agents#p-wtu-3]]</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[src-01#p-src01-5]]</span>
+                
+                <span style="color: var(--muted); margin-left: 6px;">原始文獻：</span>
+                
+                
+                <a class="src-pill" href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" title="Building Effective Agents">
+                  [src-01: Building Effective Agents]
+                </a>
+                
+                
+                <a class="src-pill" href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf" target="_blank" rel="noopener noreferrer" title="A Practical Guide to Building Agents">
+                  [src-04: A Practical Guide to Build…]
+                </a>
+                
+              </div>
+            </div>
+            
+          </div>
+
+          
+
+          <details class="evidence-drawer">
+            <summary>檢視本頁引用的 LLM Wiki 知識庫原文段落 (5 筆段落證據)</summary>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[when-to-use-agents#p-wtu-1]] — When to Use Agents：何時該用（與不該用）AI Agent 的工程決策準則</div>
+              <div style="margin-top: 4px;">面對新問題時，並非所有任務都適合做成自主 [[ai-agent|AI Agent]]。[[src-01|Anthropic (2024)]] 強調：**應該尋找最簡單的解決方案，只有在確實需要時才增加系統複雜度**——許多時候，單次 LLM 呼叫搭配檢索（RAG）或確定性的 [[workflow-patterns|Workflow]] 就已經足夠，因為自主 Agent 是以較高的延遲（latency）與 Token 成本（cost）來換取任務表現。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-01] Building Effective Agents
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[src-01#p-src01-5]] — Building Effective Agents (Anthropic, 2024)</div>
+              <div style="margin-top: 4px;">在決定 [[when-to-use-agents|何時該使用 Agent]] 時，Anthropic 建議永遠先尋找最簡單的解決方案（單次 LLM 呼叫搭配檢索與範例），只有在問題步驟無法預先預測、必須仰賴模型進行多輪開放式探索與決策時，才承擔自主 Agent 較高的延遲（latency）、成本（cost）與錯誤累積風險。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-01] Building Effective Agents
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[when-to-use-agents#p-wtu-2]] — When to Use Agents：何時該用（與不該用）AI Agent 的工程決策準則</div>
+              <div style="margin-top: 4px;">那麼什麼時候才真正值得導入 Agent？[[src-04|OpenAI (2025)]] 提出三個最具鑑別力的適用判準：(1) **複雜決策（Complex decision-making）**——工作流程包含細微的情境判斷、多重例外處理，難以寫成死板規則（例如綜合考量購買紀錄與原因的客服退費審核）；(2) **難以維護的規則集（Difficult-to-maintain rules）**——既有系統充斥數百條糾纏的 `if-else` 規則，每次新增條件都容易改壞舊邏輯（例如供應商資安合規審查）；(3) **高度依賴非結構化資料（Heavy reliance on unstructured data）**——任務必須理解自然語言對話、PDF 合約或圖片內容才能推進（例如保險理賠審核）。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-04] A Practical Guide to Building Agents
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[src-04#p-src04-2]] — A Practical Guide to Building Agents (OpenAI, 2025)</div>
+              <div style="margin-top: 4px;">關於 [[when-to-use-agents|何時該打造 Agent]]，OpenAI 提出三個高價值應用場景判準：(1) **Complex decision-making**（需要細膩判斷、例外處理與情境敏感度的複雜決策，例如客服退費審核）；(2) **Difficult-to-maintain rules**（傳統 if-else 規則引擎變得過於龐大脆弱、難以維護的系統，例如廠商資安審查）；(3) **Heavy reliance on unstructured data**（需要理解自然語言文件、對話或非結構化資料的工作，例如保險理賠審理）。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-04] A Practical Guide to Building Agents
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[when-to-use-agents#p-wtu-3]] — When to Use Agents：何時該用（與不該用）AI Agent 的工程決策準則</div>
+              <div style="margin-top: 4px;">相對地，如果一個任務的**每一個步驟都可以事先固定寫清楚**、輸入資料高度結構化，或者應用場景對回應延遲極度敏感且完全零容錯，[[src-01|Anthropic]] 與 [[src-04|OpenAI]] 都建議直接採用確定性的程式碼或 [[workflow-vs-agent|Workflow]]，而不要強行套用開放式的自主 Agent；若確定採用 Agent，則必須搭配完善的 [[guardrails|Guardrails 安全護欄]] 與沙盒測試環境。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-01] Building Effective Agents
+                </a>
+                
+                
+                <a href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-04] A Practical Guide to Building Agents
+                </a>
+                
+              </div>
+            </div>
+            
+          </details>
+        </article>
+        
+        <article class="slide" id="slide-S14" data-index="13">
+          <div class="slide-meta">
+            <div>
+              <span class="badge">S14 · 安全與防護</span>
+              
+              <span class="badge badge-accent">學習目標 LO6</span>
+              
+            </div>
+            <span style="font-family: var(--font-mono); font-size: 0.82rem; color: var(--muted);">
+              Slide 14 / 15
+            </span>
+          </div>
+
+          <h1 class="slide-title">Guardrails 多層次安全護欄與 Human-in-the-Loop</h1>
+          
+          <p class="slide-subtitle">當 Agent 擁有修改資料庫與轉帳退費的雙手，如何確保它不會失控？</p>
+          
+
+          
+
+          
+
+          
+          <div class="diagram-box">
+            <pre>多層次防禦護欄 (Layered Guardrails &amp; Human-in-the-Loop)：
+
+使用者輸入 ──► [ 相關性/安全分類器 &amp; PII 個資過濾 ] ──► [ Agent 推論 (ReAct) ]
+                                                               │
+               ┌───────────────────────────────────────────────┘
+               ▼
+        [ 工具風險分級檢查 ]
+          ├─ 低風險 (唯讀查詢) ──────────────► 自動執行
+          └─ 高風險 (退費/刪資料/不可逆) ──► [ Human-in-the-Loop 人類審核批准 ]</pre>
+          </div>
+          
+
+          <div class="bullets-list">
+            
+            <div class="bullet-card">
+              <div class="bullet-text">OpenAI 指出 Guardrails 必須採取多層防禦（Layered Defense）：結合相關性分類器（攔截離題請求）、安全分類器（防範越獄與 Prompt Injection）、PII 個資過濾器與輸出驗證。</div>
+              <div class="bullet-citations">
+                <span style="color: var(--muted);">Wiki 對應段落：</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[guardrails#p-grd-1]]</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[guardrails#p-grd-2]]</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[src-04#p-src04-5]]</span>
+                
+                <span style="color: var(--muted); margin-left: 6px;">原始文獻：</span>
+                
+                
+                <a class="src-pill" href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" title="Building Effective Agents">
+                  [src-01: Building Effective Agents]
+                </a>
+                
+                
+                <a class="src-pill" href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf" target="_blank" rel="noopener noreferrer" title="A Practical Guide to Building Agents">
+                  [src-04: A Practical Guide to Build…]
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="bullet-card">
+              <div class="bullet-text">針對工具呼叫必須進行風險分級（低／中／高風險）：考量「唯讀或寫入」、「是否可逆」、「權限範圍」與「財務影響」，唯讀工具可自動放行，高風險不可逆工具必須強制攔截。</div>
+              <div class="bullet-citations">
+                <span style="color: var(--muted);">Wiki 對應段落：</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[guardrails#p-grd-3]]</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[src-04#p-src04-5]]</span>
+                
+                <span style="color: var(--muted); margin-left: 6px;">原始文獻：</span>
+                
+                
+                <a class="src-pill" href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" title="Building Effective Agents">
+                  [src-01: Building Effective Agents]
+                </a>
+                
+                
+                <a class="src-pill" href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf" target="_blank" rel="noopener noreferrer" title="A Practical Guide to Building Agents">
+                  [src-04: A Practical Guide to Build…]
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="bullet-card">
+              <div class="bullet-text">當觸發高風險動作或超過失敗重試門檻（Failure Threshold）時，系統應自動啟動 Human-in-the-loop（人類介入審核）並在隔離沙盒（Sandbox）中先行測試。</div>
+              <div class="bullet-citations">
+                <span style="color: var(--muted);">Wiki 對應段落：</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[guardrails#p-grd-4]]</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[src-01#p-src01-5]]</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[src-04#p-src04-5]]</span>
+                
+                <span style="color: var(--muted); margin-left: 6px;">原始文獻：</span>
+                
+                
+                <a class="src-pill" href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" title="Building Effective Agents">
+                  [src-01: Building Effective Agents]
+                </a>
+                
+                
+                <a class="src-pill" href="https://lilianweng.github.io/posts/2023-06-23-agent/" target="_blank" rel="noopener noreferrer" title="LLM Powered Autonomous Agents">
+                  [src-02: LLM Powered Autonomous Age…]
+                </a>
+                
+                
+                <a class="src-pill" href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf" target="_blank" rel="noopener noreferrer" title="A Practical Guide to Building Agents">
+                  [src-04: A Practical Guide to Build…]
+                </a>
+                
+              </div>
+            </div>
+            
+          </div>
+
+          
+
+          <details class="evidence-drawer">
+            <summary>檢視本頁引用的 LLM Wiki 知識庫原文段落 (6 筆段落證據)</summary>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[guardrails#p-grd-1]] — Guardrails &amp; Human-in-the-Loop：代理系統的多層次安全護欄</div>
+              <div style="margin-top: 4px;">因為自主 [[ai-agent|AI Agent]] 能夠呼叫 [[tool-use|外部動作工具]] 實際修改資料庫、發送郵件或執行交易，一旦發生推論錯誤或遭受惡意提示注入（Prompt Injection），後果遠比一般聊天機器人嚴重；[[src-01|Anthropic (2024)]] 與 [[src-04|OpenAI (2025)]] 都強調，生產環境的 Agent 必須配置嚴格的 **Guardrails（安全護欄）** 與檢查點。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-01] Building Effective Agents
+                </a>
+                
+                
+                <a href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-04] A Practical Guide to Building Agents
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[guardrails#p-grd-2]] — Guardrails &amp; Human-in-the-Loop：代理系統的多層次安全護欄</div>
+              <div style="margin-top: 4px;">[[src-04|OpenAI《A Practical Guide to Building Agents》]] 指出，Guardrails 不應只依賴單一規則，而應建構 **多層防禦體系（Layered Defense-in-Depth）**，涵蓋：(1) **Relevance classifier（相關性分類器）** 攔截超出代理職責範圍的離題請求；(2) **Safety classifier（安全分類器）** 偵測越獄（Jailbreaks）與提示詞注入攻擊；(3) **PII filter（個資過濾器）** 防止身分證號、信用卡等敏感個人資料外洩；(4) **Moderation 與 Output validation（內容審核與輸出格式／品牌規範驗證）**。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-04] A Practical Guide to Building Agents
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[src-04#p-src04-5]] — A Practical Guide to Building Agents (OpenAI, 2025)</div>
+              <div style="margin-top: 4px;">在安全性上，OpenAI 強調 **[[guardrails|Guardrails（安全護欄）]]** 必須採取多層防禦機制（layered defense），不可只靠單一防護：結合相關性分類器（Relevance classifier）、安全分類器（越獄與 Prompt Injection 偵測）、PII 個資過濾器、輸出驗證、工具風險分級（低／中／高風險，如退費或刪除資料），並在觸發高風險動作或超過失敗次數門檻時強制啟動 **Human-in-the-loop（人類介入審核）**。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-04] A Practical Guide to Building Agents
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[guardrails#p-grd-3]] — Guardrails &amp; Human-in-the-Loop：代理系統的多層次安全護欄</div>
+              <div style="margin-top: 4px;">針對 [[tool-use|工具呼叫安全（Tool Safeguards）]]，[[src-04|OpenAI]] 建議為每一個工具進行 **風險分級（Low / Medium / High Risk）**：根據工具是「唯讀（read-only）或寫入（write）」、「是否可逆（reversibility）」、「所需權限範圍」與「是否涉及金錢財務影響」來決定管控強度；唯讀低風險工具可自動放行，而像「大額退費、刪除生產資料、發送全體通知」等高風險或不可逆動作則必須攔截。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-04] A Practical Guide to Building Agents
+                </a>
+                
+                
+                <a href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-01] Building Effective Agents
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[guardrails#p-grd-4]] — Guardrails &amp; Human-in-the-Loop：代理系統的多層次安全護欄</div>
+              <div style="margin-top: 4px;">最後一道關鍵防線是 **Human-in-the-loop（人類介入機制）** 與 **沙盒環境（Sandboxed testing）**：當 Agent 超過最大重試／失敗次數門檻（failure threshold）仍無法完成任務，或是即將執行高風險敏感動作時，系統必須自動暫停並移交給人類審核批准（或在隔離的 Sandbox 中先完成驗證），同時兼顧系統自主性與操作安全性（也彌補 [[src-02|Lilian Weng]] 指出的長程規劃錯誤恢復難題）。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-01] Building Effective Agents
+                </a>
+                
+                
+                <a href="https://lilianweng.github.io/posts/2023-06-23-agent/" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-02] LLM Powered Autonomous Agents
+                </a>
+                
+                
+                <a href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-04] A Practical Guide to Building Agents
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[src-01#p-src01-5]] — Building Effective Agents (Anthropic, 2024)</div>
+              <div style="margin-top: 4px;">在決定 [[when-to-use-agents|何時該使用 Agent]] 時，Anthropic 建議永遠先尋找最簡單的解決方案（單次 LLM 呼叫搭配檢索與範例），只有在問題步驟無法預先預測、必須仰賴模型進行多輪開放式探索與決策時，才承擔自主 Agent 較高的延遲（latency）、成本（cost）與錯誤累積風險。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-01] Building Effective Agents
+                </a>
+                
+              </div>
+            </div>
+            
+          </details>
+        </article>
+        
+        <article class="slide" id="slide-S15" data-index="14">
+          <div class="slide-meta">
+            <div>
+              <span class="badge">S15 · 總結與自測</span>
+              
+              <span class="badge badge-accent">學習目標 LO1</span>
+              
+              <span class="badge badge-accent">學習目標 LO2</span>
+              
+              <span class="badge badge-accent">學習目標 LO3</span>
+              
+              <span class="badge badge-accent">學習目標 LO4</span>
+              
+              <span class="badge badge-accent">學習目標 LO5</span>
+              
+              <span class="badge badge-accent">學習目標 LO6</span>
+              
+            </div>
+            <span style="font-family: var(--font-mono); font-size: 0.82rem; color: var(--muted);">
+              Slide 15 / 15
+            </span>
+          </div>
+
+          <h1 class="slide-title">重點總整理與互動小測驗</h1>
+          
+          <p class="slide-subtitle">用 3 個實務情境題檢驗你是否已經掌握 AI Agents 的核心觀念！</p>
+          
+
+          
+
+          
+
+          
+
+          <div class="bullets-list">
+            
+            <div class="bullet-card">
+              <div class="bullet-text">核心公式回顧：AI Agent = Augmented LLM（Brain）+ Planning（CoT / ToT / ReAct）+ Memory（短期 Context Window / 長期向量庫與 Wiki）+ Tool Use（透過 MCP 標準連接 Data / Action / Orchestration 工具）。</div>
+              <div class="bullet-citations">
+                <span style="color: var(--muted);">Wiki 對應段落：</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[overview#p-ov-2]]</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[overview#p-ov-3]]</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[overview#p-ov-4]]</span>
+                
+                <span style="color: var(--muted); margin-left: 6px;">原始文獻：</span>
+                
+                
+                <a class="src-pill" href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" title="Building Effective Agents">
+                  [src-01: Building Effective Agents]
+                </a>
+                
+                
+                <a class="src-pill" href="https://lilianweng.github.io/posts/2023-06-23-agent/" target="_blank" rel="noopener noreferrer" title="LLM Powered Autonomous Agents">
+                  [src-02: LLM Powered Autonomous Age…]
+                </a>
+                
+                
+                <a class="src-pill" href="https://arxiv.org/abs/2210.03629" target="_blank" rel="noopener noreferrer" title="ReAct: Synergizing Reasoning and Acting in Language Models">
+                  [src-03: ReAct]
+                </a>
+                
+                
+                <a class="src-pill" href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf" target="_blank" rel="noopener noreferrer" title="A Practical Guide to Building Agents">
+                  [src-04: A Practical Guide to Build…]
+                </a>
+                
+                
+                <a class="src-pill" href="https://huggingface.co/learn/agents-course/unit1/what-are-agents" target="_blank" rel="noopener noreferrer" title="Hugging Face Agents Course — Unit 1: What are Agents?">
+                  [src-05: Hugging Face Agents Course]
+                </a>
+                
+                
+                <a class="src-pill" href="https://modelcontextprotocol.io/introduction" target="_blank" rel="noopener noreferrer" title="Model Context Protocol (MCP) — Introduction">
+                  [src-06: Model Context Protocol (MCP)]
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="bullet-card">
+              <div class="bullet-text">工程落地黃金原則：先從最簡單的單次呼叫或 5 種確定性 Workflow 模式開始；確認符合「複雜決策、難維護規則、非結構化資料」三大判準再升級為 Agent，並配置多層 Guardrails 與人類介入機制。</div>
+              <div class="bullet-citations">
+                <span style="color: var(--muted);">Wiki 對應段落：</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[overview#p-ov-5]]</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[when-to-use-agents#p-wtu-1]]</span>
+                
+                <span class="cite-pill" title="LLM Wiki 段落錨點">[[guardrails#p-grd-4]]</span>
+                
+                <span style="color: var(--muted); margin-left: 6px;">原始文獻：</span>
+                
+                
+                <a class="src-pill" href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" title="Building Effective Agents">
+                  [src-01: Building Effective Agents]
+                </a>
+                
+                
+                <a class="src-pill" href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf" target="_blank" rel="noopener noreferrer" title="A Practical Guide to Building Agents">
+                  [src-04: A Practical Guide to Build…]
+                </a>
+                
+                
+                <a class="src-pill" href="https://huggingface.co/learn/agents-course/unit1/what-are-agents" target="_blank" rel="noopener noreferrer" title="Hugging Face Agents Course — Unit 1: What are Agents?">
+                  [src-05: Hugging Face Agents Course]
+                </a>
+                
+              </div>
+            </div>
+            
+          </div>
+
+          
+          <div class="quiz-box">
+            <div class="quiz-q">思考一下：情境題：一家電商想做「自動客服退費系統」，規則需要同時看顧客對話紀錄、商品損壞照片與歷史退貨紀錄，而且超過 3,000 元的退費不能讓 AI 自己直接匯款。請問你該如何設計？</div>
+            <button class="btn" type="button" onclick="this.nextElementSibling.classList.toggle('open')">
+              點擊查看解答與解析
+            </button>
+            <div class="quiz-a">
+              <strong>解答：</strong>(1) 因涉及非結構化資料（對話＋照片）與複雜情境判斷，符合 OpenAI 使用 Agent 的判準；(2) 採用 ReAct 迴圈搭配 Data tools 查詢訂單紀錄；(3) 將「執行退費 Action tool」設為高風險工具，加入 Guardrail：金額 ≤ 3,000 元自動處理，&gt; 3,000 元觸發 Human-in-the-loop 轉交真人客服主管批准！
+            </div>
+          </div>
+          
+
+          <details class="evidence-drawer">
+            <summary>檢視本頁引用的 LLM Wiki 知識庫原文段落 (6 筆段落證據)</summary>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[overview#p-ov-2]] — AI Agents 主題總覽：從聊天機器人到自主行動系統</div>
+              <div style="margin-top: 4px;">一般的大型語言模型（Chatbot）像是一位「只動口、不動手」的顧問：你問一句、它根據預訓練權重回一段文字，既不能主動查核外部事實，也無法替你執行多步驟任務；而 **[[ai-agent|AI Agent（人工智慧代理）]]** 則結合了 **Brain（大腦 ＝ LLM 推論與規劃）** 與 **Body（身體 ＝ 外部工具與行動能力）**，能感知環境並獨立執行多步驟工作流以達成使用者目標。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-04] A Practical Guide to Building Agents
+                </a>
+                
+                
+                <a href="https://huggingface.co/learn/agents-course/unit1/what-are-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-05] Hugging Face Agents Course — Unit 1: What are Agents?
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[overview#p-ov-3]] — AI Agents 主題總覽：從聊天機器人到自主行動系統</div>
+              <div style="margin-top: 4px;">所有代理系統的共同最小建構積木都是 **[[augmented-llm|Augmented LLM（擴充型語言模型）]]**，並由三大核心組件支撐：(1) **[[planning|Planning（規劃）]]** 負責透過 CoT / ToT 拆解子任務並進行自我反思；(2) **[[memory|Memory（記憶）]]** 結合 Context Window 短期工作記憶與外部向量／Wiki 長期記憶；(3) **[[tool-use|Tool Use（工具使用）]]** 透過 Data、Action、Orchestration 三類工具以及開放標準 **[[mcp|Model Context Protocol (MCP)]]** 與外部世界接軌。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-01] Building Effective Agents
+                </a>
+                
+                
+                <a href="https://lilianweng.github.io/posts/2023-06-23-agent/" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-02] LLM Powered Autonomous Agents
+                </a>
+                
+                
+                <a href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-04] A Practical Guide to Building Agents
+                </a>
+                
+                
+                <a href="https://modelcontextprotocol.io/introduction" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-06] Model Context Protocol (MCP) — Introduction
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[overview#p-ov-4]] — AI Agents 主題總覽：從聊天機器人到自主行動系統</div>
+              <div style="margin-top: 4px;">為了避免純思考鏈（CoT）在封閉推論中產生幻覺，現代 Agent 普遍採用 **[[react|ReAct（Reasoning + Acting）]]** 迴圈，交替執行 `Thought（思考下一步）→ Action（呼叫外部工具）→ Observation（觀察環境回傳結果）`，將外部真實證據不斷帶回上下文視窗。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://arxiv.org/abs/2210.03629" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-03] ReAct: Synergizing Reasoning and Acting in Language Models
+                </a>
+                
+                
+                <a href="https://lilianweng.github.io/posts/2023-06-23-agent/" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-02] LLM Powered Autonomous Agents
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[overview#p-ov-5]] — AI Agents 主題總覽：從聊天機器人到自主行動系統</div>
+              <div style="margin-top: 4px;">在工程實務上，系統設計沿著連續的 **[[workflow-vs-agent|自主性光譜（Agency Spectrum）]]** 展開：若步驟可事先預期，應優先使用確定性的 **[[workflow-patterns|5 種常見 Workflow 模式]]**（Prompt Chaining、Routing、Parallelization、Orchestrator-Workers、Evaluator-Optimizer）；只有面對複雜決策、難維護的規則或非結構化資料時（見 **[[when-to-use-agents]]**），才升級為自主 Agent 或 **[[multi-agent|Multi-Agent 多代理系統（Manager 與 Decentralized Handoff）]]**，並搭配多層次 **[[guardrails|Guardrails 安全護欄與 Human-in-the-loop]]** 確保安全可控。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-01] Building Effective Agents
+                </a>
+                
+                
+                <a href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-04] A Practical Guide to Building Agents
+                </a>
+                
+                
+                <a href="https://huggingface.co/learn/agents-course/unit1/what-are-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-05] Hugging Face Agents Course — Unit 1: What are Agents?
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[when-to-use-agents#p-wtu-1]] — When to Use Agents：何時該用（與不該用）AI Agent 的工程決策準則</div>
+              <div style="margin-top: 4px;">面對新問題時，並非所有任務都適合做成自主 [[ai-agent|AI Agent]]。[[src-01|Anthropic (2024)]] 強調：**應該尋找最簡單的解決方案，只有在確實需要時才增加系統複雜度**——許多時候，單次 LLM 呼叫搭配檢索（RAG）或確定性的 [[workflow-patterns|Workflow]] 就已經足夠，因為自主 Agent 是以較高的延遲（latency）與 Token 成本（cost）來換取任務表現。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-01] Building Effective Agents
+                </a>
+                
+              </div>
+            </div>
+            
+            <div class="evidence-item">
+              <div class="evidence-ref">[[guardrails#p-grd-4]] — Guardrails &amp; Human-in-the-Loop：代理系統的多層次安全護欄</div>
+              <div style="margin-top: 4px;">最後一道關鍵防線是 **Human-in-the-loop（人類介入機制）** 與 **沙盒環境（Sandboxed testing）**：當 Agent 超過最大重試／失敗次數門檻（failure threshold）仍無法完成任務，或是即將執行高風險敏感動作時，系統必須自動暫停並移交給人類審核批准（或在隔離的 Sandbox 中先完成驗證），同時兼顧系統自主性與操作安全性（也彌補 [[src-02|Lilian Weng]] 指出的長程規劃錯誤恢復難題）。</div>
+              <div style="margin-top: 4px; font-size: 0.76rem; color: var(--muted);">
+                來源文獻：
+                
+                
+                <a href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-01] Building Effective Agents
+                </a>
+                
+                
+                <a href="https://lilianweng.github.io/posts/2023-06-23-agent/" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-02] LLM Powered Autonomous Agents
+                </a>
+                
+                
+                <a href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf" target="_blank" rel="noopener noreferrer" style="color: var(--primary); margin-right: 8px;">
+                  [src-04] A Practical Guide to Building Agents
+                </a>
+                
+              </div>
+            </div>
+            
+          </details>
+        </article>
+        
+      </main>
+    </div>
+
+    <footer class="bottombar">
+      <div>
+        知識庫基底：<strong>AI Agents LLM Wiki</strong>（6 篇原始來源 · 12 篇概念頁 · 80 個錨點段落）
+      </div>
+      <div class="nav-controls">
+        <button class="btn" id="prevBtn" type="button">← 上一頁</button>
+        <span id="pageIndicator" style="font-family: var(--font-mono); min-width: 72px; text-align: center;">1 / 15</span>
+        <button class="btn btn-primary" id="nextBtn" type="button">下一頁 →</button>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    (function () {
+      const slides = Array.from(document.querySelectorAll('article.slide'));
+      const tocItems = Array.from(document.querySelectorAll('.toc-item'));
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+      const pageIndicator = document.getElementById('pageIndicator');
+      const progressBar = document.getElementById('progressBar');
+      const stageWrap = document.getElementById('stageWrap');
+      const toggleTocBtn = document.getElementById('toggleTocBtn');
+      const toggleEvidenceAllBtn = document.getElementById('toggleEvidenceAllBtn');
+      const themeBtn = document.getElementById('themeBtn');
+
+      let currentIndex = 0;
+      let allEvidenceOpen = false;
+
+      function showSlide(index) {
+        if (index < 0) index = 0;
+        if (index >= slides.length) index = slides.length - 1;
+        currentIndex = index;
+
+        slides.forEach((el, i) => {
+          el.classList.toggle('active', i === currentIndex);
+        });
+        tocItems.forEach((el, i) => {
+          el.classList.toggle('active', i === currentIndex);
+        });
+
+        pageIndicator.textContent = (currentIndex + 1) + ' / ' + slides.length;
+        const pct = ((currentIndex + 1) / slides.length) * 100;
+        progressBar.style.width = pct.toFixed(1) + '%';
+        prevBtn.disabled = currentIndex === 0;
+        nextBtn.disabled = currentIndex === slides.length - 1;
+        window.location.hash = slides[currentIndex].id;
+      }
+
+      prevBtn.addEventListener('click', () => showSlide(currentIndex - 1));
+      nextBtn.addEventListener('click', () => showSlide(currentIndex + 1));
+
+      tocItems.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const idx = parseInt(btn.getAttribute('data-slide-index'), 10);
+          showSlide(idx);
+        });
+      });
+
+      toggleTocBtn.addEventListener('click', () => {
+        stageWrap.classList.toggle('toc-collapsed');
+      });
+
+      toggleEvidenceAllBtn.addEventListener('click', () => {
+        allEvidenceOpen = !allEvidenceOpen;
+        document.querySelectorAll('details.evidence-drawer').forEach((d) => {
+          d.open = allEvidenceOpen;
+        });
+      });
+
+      themeBtn.addEventListener('click', () => {
+        const root = document.documentElement;
+        const next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+        root.setAttribute('data-theme', next);
+      });
+
+      window.addEventListener('keydown', (e) => {
+        if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
+        if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') {
+          e.preventDefault();
+          showSlide(currentIndex + 1);
+        } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+          e.preventDefault();
+          showSlide(currentIndex - 1);
+        } else if (e.key === 'Home') {
+          e.preventDefault();
+          showSlide(0);
+        } else if (e.key === 'End') {
+          e.preventDefault();
+          showSlide(slides.length - 1);
+        }
+      });
+
+      // Initialize from URL hash if present
+      if (window.location.hash) {
+        const targetId = window.location.hash.slice(1);
+        const found = slides.findIndex((s) => s.id === targetId);
+        if (found >= 0) currentIndex = found;
+      }
+      showSlide(currentIndex);
+    })();
+  </script>
+</body>
+</html>
